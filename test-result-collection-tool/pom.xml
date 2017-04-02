@@ -25,16 +25,16 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-	<artifactId>test-result-collection-tool</artifactId>
+    <artifactId>test-result-collection-tool</artifactId>
 
-	<properties>
-		<matching.obj>jarfile_batch_sign_local_timestamp</matching.obj>
-		<file.name>${project.artifactId}.one-jar.jar</file.name>
-        	<shade.file.name>${project.artifactId}.shade</shade.file.name>
-        	<shade.file.name.with.jar>${project.artifactId}.shade.jar</shade.file.name.with.jar>
-		<original.folder>${project.build.directory}/temp</original.folder>
-		<cert.project.name>jarAgm</cert.project.name>
-	</properties>
+    <properties>
+        <matching.obj>jarfile_batch_sign_local_timestamp</matching.obj>
+        <file.name>${project.artifactId}.one-jar.jar</file.name>
+        <shade.file.name>${project.artifactId}.shade</shade.file.name>
+        <shade.file.name.with.jar>${project.artifactId}.shade.jar</shade.file.name.with.jar>
+        <original.folder>${project.build.directory}/temp</original.folder>
+        <cert.project.name>jarAgm</cert.project.name>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -101,7 +101,7 @@
 
 
             <plugin>
-                <groupId>org.dstovall</groupId>
+                <groupId>com.jolira</groupId>
                 <artifactId>onejar-maven-plugin</artifactId>
                 <version>1.4.4</version>
                 <executions>
@@ -147,27 +147,28 @@
             </plugin>
         </plugins>
     </build>
-	<profiles>
+    <profiles>
         <profile>
-            <id>jar-signing</id>
+            <id>deployPluginDevEnv</id>
+            <activation>
+                <property>
+                    <name>deployTeamCityPlugin</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
-                <defaultGoal>install</defaultGoal>
                 <plugins>
                     <plugin>
-                        <groupId>SignHPUtility.plugin</groupId>
-                        <artifactId>signhp-maven-plugin</artifactId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
                         <executions>
-                            <execution>
-                                <phase>pre-integration-test</phase>
+                            <execution><!-- Run our version calculation script -->
+                                <phase>package</phase>
                                 <goals>
-                                    <goal>signHP</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <parameters>-g ${project.build.directory}/${shade.file.name.with.jar} -t 24 -p AGN_JAR -i -v -u jarsigner -c 1 -o ${project.build.directory}</parameters>
-                                    <properties>
-                                        <krb.account_name>qcbuilder@EMEA.CPQCORP.NET</krb.account_name>
-                                        <krb.password>red.mud-83</krb.password>
-                                    </properties>
+                                    <executable>${basedir}/../misc/scripts/deployPlugin.bat</executable>
                                 </configuration>
                             </execution>
                         </executions>
@@ -175,12 +176,38 @@
                 </plugins>
             </build>
         </profile>
-	</profiles>
+        <profile>
+            <id>build-deployment</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <pluginRepositories>
         <pluginRepository>
             <id>onejar-maven-plugin.googlecode.com</id>
-            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+            <url>http://central.maven.org/maven2/</url>
         </pluginRepository>
     </pluginRepositories>
 
