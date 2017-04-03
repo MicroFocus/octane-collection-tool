@@ -9,6 +9,28 @@
     <groupId>com.hpe.adm.octane.ciplugins</groupId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>Octane Collection Tool</name>
+    <description>Collection tool to bridge between Octane and ALM</description>
+    <developers>
+        <developer>
+            <id>m-seldin</id>
+            <name>Michael Seldin</name>
+            <email>michael.seldin@hpe.com</email>
+            <roles>
+                <role>Global owner and maintainer</role>
+            </roles>
+            <organization>HPE</organization>
+        </developer>
+        <developer>
+            <id>radislavB</id>
+            <name>Radislav Berkovich</name>
+            <email>radislav.berkovich@hpe.com</email>
+            <roles>
+                <role>Global owner and maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <packaging>pom</packaging>
 
     <url>https://github.com/HPSoftware/octane-collection-tool</url>
