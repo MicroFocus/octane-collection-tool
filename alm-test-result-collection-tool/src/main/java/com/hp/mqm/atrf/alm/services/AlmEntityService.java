@@ -222,11 +222,16 @@ public class AlmEntityService {
         //single project
         if (jsonObj.has("Project")) {
             projectArr = (JSONArray) jsonObj.get("Project");
-            ;
         } else {
             //several projects
             JSONObject projectsObj = (JSONObject) jsonObj.get("Projects");
-            projectArr = (JSONArray) projectsObj.get("Project");
+            if (projectsObj.get("Project") instanceof JSONArray) {
+                projectArr = (JSONArray) projectsObj.get("Project");
+            } else {
+                //single project
+                projectArr = new JSONArray();
+                projectArr.put(projectsObj.get("Project"));
+            }
 
         }
         for (int i = 0; i < projectArr.length(); i++) {
