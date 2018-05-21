@@ -30,6 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestResultCollectionTool {
 
@@ -86,6 +89,9 @@ public class TestResultCollectionTool {
         } catch (IOException e) {
             releaseClient();
             System.out.println("Unable to push test result: " + e.getMessage());
+            if(e.getMessage().contains("access_denied")){
+                System.out.println("Validate proxy configuration.");
+            }
             System.exit(ReturnCode.FAILURE.getReturnCode());
         } catch (RuntimeException e) {
             releaseClient();
@@ -97,6 +103,12 @@ public class TestResultCollectionTool {
     }
 
     private void releaseClient() {
+
+        changeLogLevel(Level.SEVERE);
+        //why we do it, in production, logout return cookie with path \msg that is rejected by java and WARNING log is printed.
+        //Because its logout and anyway application is going to be closed, we don't want to show such kind of log messages
+        //WARNING: Cookie rejected [JSESSIONID="1E3A86F611BDB687CC4C5BF04B73676E", version:0, domain:almoctane-eur.saas.hpe.com, path:/msg, expiry:null] Illegal 'path' attribute "/msg". Path of origin: "/authentication/sign_out"
+
         if (client != null) {
             try {
                 client.release();
@@ -105,7 +117,15 @@ public class TestResultCollectionTool {
                 System.exit(ReturnCode.FAILURE.getReturnCode());
             }
         }
-    }
+     }
+
+     private void changeLogLevel(Level level){
+         Handler[] handlers = Logger.getLogger( "" ).getHandlers();
+         for ( int index = 0; index < handlers.length; index++ ) {
+             handlers[index].setLevel( level);
+
+         }
+     }
 
     private boolean validatePublishResult(long testResultId, String fileName) {
         String publishResult = null;
