@@ -38,7 +38,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar alm-test-result-collection-tool.jar [OPTIONS]... \n";
     private static final String HEADER = "HPE ALM Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.5";
+    private static final String VERSION = "1.0.6";
 
     public static final String DEFAULT_CONF_FILE = "conf.xml";
     public static final String DEFAULT_OUTPUT_FILE = "output.xml";
@@ -49,6 +49,8 @@ public class CliParser {
     public static final String VERSION_OPTION_LONG = "version";
     public static final String OUTPUT_FILE_OPTION = "o";
     public static final String OUTPUT_FILE_OPTION_LONG = "output-file";
+    public static final String SOURCE_FILE_OPTION = "sf";
+    public static final String SOURCE_FILE_OPTION_LONG = "source-file";
     public static final String CONFIG_FILE_OPTION = "c";
     public static final String CONFIG_FILE_OPTION_LONG = "config-file";
     public static final String PASSWORD_ALM_OPTION = "pa";
@@ -78,6 +80,7 @@ public class CliParser {
                 DEFAULT_OUTPUT_FILE + "'." + System.lineSeparator() + " When saving to a file, the tool saves first 1000 runs." + System.lineSeparator() +
                 "No ALM Octane URL or authentication configuration is required if you use this option.").hasArg().argName("FILE").optionalArg(true).build());
         options.addOption(Option.builder(CONFIG_FILE_OPTION).longOpt(CONFIG_FILE_OPTION_LONG).desc("Configuration file location. Default configuration file name is '" + DEFAULT_CONF_FILE + "'").hasArg().argName("FILE").build());
+        options.addOption(Option.builder(SOURCE_FILE_OPTION).longOpt(SOURCE_FILE_OPTION_LONG).desc("If used, data is taken from source file and not from ALM").hasArg().argName("FILE").build());
 
         OptionGroup passAlmGroup = new OptionGroup();
         passAlmGroup.addOption(Option.builder(PASSWORD_ALM_OPTION).longOpt(PASSWORD_ALM_OPTION_LONG).desc("Password for ALM user to use for retrieving test results").hasArg().argName("PASSWORD").build());
@@ -123,6 +126,22 @@ public class CliParser {
             } catch (Exception e) {
                 logger.error("Failed to load configuration file : " + e.getMessage());
                 System.exit(ReturnCode.FAILURE.getReturnCode());
+            }
+
+            if(cmd.hasOption(SOURCE_FILE_OPTION)){
+                String sourceFilePath = cmd.getOptionValue(SOURCE_FILE_OPTION);
+                    File file = new File(sourceFilePath);
+                    if (!file.exists()) {
+                        logger.error("Source file does not exist : " + sourceFilePath);
+                        System.exit(ReturnCode.FAILURE.getReturnCode());
+                    } else if (!file.isFile()) {
+                        logger.error("Invalid path to source file : " + sourceFilePath);
+                        System.exit(ReturnCode.FAILURE.getReturnCode());
+                    } else if (!file.canRead()) {
+                        logger.error("Can not read the source file: " + sourceFilePath);
+                        System.exit(ReturnCode.FAILURE.getReturnCode());
+                    }
+                configuration.setSourceFile(sourceFilePath);
             }
 
             //load output file

@@ -27,6 +27,7 @@ import com.hp.mqm.atrf.octane.core.OctaneTestResultOutput;
 import com.hp.mqm.atrf.octane.entities.TestRunResultEntity;
 import com.hp.mqm.atrf.octane.services.OctaneWrapperService;
 import com.sun.org.apache.xerces.internal.util.XMLChar;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +41,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -77,12 +76,32 @@ public class App {
     }
 
     public void start() {
+        if(hasSourceFile()){
+            sendFromSourceFile(configuration.getSourceFile());
+            return;
+        }
+
 
         confValidation();
 
         List<OctaneTestResultOutput> resultOutputs = outputToOctane();
 
         getCreationStatus(resultOutputs);
+    }
+
+    private void sendFromSourceFile(String filePath){
+        loginToOctane();
+
+        logger.info("Reading source file : " + filePath);
+        try(FileInputStream inputStream = new FileInputStream(filePath)) {
+            String xmlData = IOUtils.toString(inputStream);
+            OctaneTestResultOutput output = octaneWrapper.postTestResults(xmlData);
+            logger.info(String.format("Bulk #1 : sending , job id=%s, %s", output.getId(), output.getStatus().toUpperCase()));
+
+            getCreationStatus(Arrays.asList(output));
+        } catch (Exception e) {
+            logger.info("Failed sendFromSourceFile : " + e.getMessage());
+        }
     }
 
     private void confValidation() {
@@ -141,6 +160,11 @@ public class App {
     private boolean isOutput() {
         boolean isOutput = StringUtils.isNotEmpty(configuration.getOutputFile());
         return isOutput;
+    }
+
+    private boolean hasSourceFile() {
+        boolean hasSourceFile = StringUtils.isNotEmpty(configuration.getSourceFile());
+        return hasSourceFile;
     }
 
     private List<OctaneTestResultOutput> outputToOctane() {

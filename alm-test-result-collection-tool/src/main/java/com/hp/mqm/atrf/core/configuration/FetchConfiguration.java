@@ -72,6 +72,8 @@ public class FetchConfiguration {
 
     public static String OUTPUT_FILE_PARAM = "conf.outputFile";
 
+    public static String SOURCE_FILE_PARAM = "conf.sourceFile";
+
     public Set<String> allowedParameters;
     private Map<String, String> lowered2allowedParams;
 
@@ -93,7 +95,7 @@ public class FetchConfiguration {
 
     public FetchConfiguration() {
         allowedParameters = new HashSet<>(Arrays.asList(ALM_USER_PARAM, ALM_PASSWORD_PARAM, ALM_SERVER_URL_PARAM, ALM_DOMAIN_PARAM, ALM_PROJECT_PARAM,
-                OCTANE_PASSWORD_PARAM, OCTANE_USER_PARAM, OCTANE_SERVER_URL_PARAM, OCTANE_SHAREDSPACE_ID_PARAM, OCTANE_WORKSPACE_ID_PARAM,
+                OCTANE_PASSWORD_PARAM, OCTANE_USER_PARAM, OCTANE_SERVER_URL_PARAM, OCTANE_SHAREDSPACE_ID_PARAM, OCTANE_WORKSPACE_ID_PARAM,SOURCE_FILE_PARAM,
                 ALM_RUN_FILTER_START_FROM_ID_PARAM, ALM_RUN_FILTER_START_FROM_DATE_PARAM, ALM_RUN_FILTER_TEST_TYPE_PARAM, ALM_RUN_FILTER_RELATED_ENTITY_TYPE_PARAM, ALM_RUN_FILTER_RELATED_ENTITY_ID_PARAM,
                 ALM_RUN_FILTER_CUSTOM_PARAM, SYNC_BULK_SIZE_PARAM, SYNC_SLEEP_BETWEEN_POSTS_PARAM, PROXY_HOST_PARAM, PROXY_PORT_PARAM, OUTPUT_FILE_PARAM, ALM_RUN_FILTER_FETCH_LIMIT_PARAM));
 
@@ -432,6 +434,14 @@ public class FetchConfiguration {
 
     public String getOutputFile() {
         return getProperty(OUTPUT_FILE_PARAM);
+    }
+
+    public String getSourceFile() {
+        return getProperty(SOURCE_FILE_PARAM);
+    }
+
+    public void setSourceFile(String source) {
+        setProperty(SOURCE_FILE_PARAM, source);
     }
 
     public String getRunFilterFetchLimit() {
