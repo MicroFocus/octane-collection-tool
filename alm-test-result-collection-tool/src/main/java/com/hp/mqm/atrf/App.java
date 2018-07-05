@@ -69,7 +69,7 @@ public class App {
     public App(FetchConfiguration configuration) {
         this.configuration = configuration;
 
-        alm2OctaneTestingToolMapper.put("MANUAL", "Manual");
+        alm2OctaneTestingToolMapper.put("MANUAL", "Manual Runner");
         alm2OctaneTestingToolMapper.put("LEANFT-TEST", "LeanFT");
         alm2OctaneTestingToolMapper.put("QUICKTEST_TEST", "UFT");
         alm2OctaneTestingToolMapper.put("BUSINESS-PROCESS", "BPT");
