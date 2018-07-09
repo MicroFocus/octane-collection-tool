@@ -19,6 +19,7 @@ package com.hp.mqm.clt;
 import com.hp.mqm.clt.tests.TestResult;
 import com.hp.mqm.clt.tests.TestResultPushStatus;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 
 import javax.xml.bind.ValidationException;
@@ -73,7 +74,7 @@ public class TestResultCollectionTool {
             for (Map.Entry<File, String> publicApiXML : publicApiXMLs.entrySet()) {
                 long testResultId;
                 try {
-                    testResultId = client.postTestResult(new FileEntity(publicApiXML.getKey()));
+                    testResultId = client.postTestResult(new FileEntity(publicApiXML.getKey(), ContentType.APPLICATION_XML));
                 } catch (ValidationException e) {
                     // One invalid public API XML should not stop the whole process when supplied externally
                     System.out.println("Test result from file '" + publicApiXML.getValue() + "' was not pushed");
