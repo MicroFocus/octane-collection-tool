@@ -40,7 +40,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "HP Lifecycle Management Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.1";
+    private static final String VERSION = "1.0.2";
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
@@ -353,7 +353,9 @@ public class CliParser {
         // CODE REVIEW, Johnny, 19Oct2015 - consult with Mirek with regards to localization, this is very probably
         // good for this release, but I can imagine it will have to be relaxed once we for example start to support
         // languages like French (and all their funny characters)
-        Pattern pattern = Pattern.compile("^\\w+:\\w+$");
+        String partialPatternStr = "\\w([\\s\\w._]+)?\\w";
+        String fullPatternStr = String.format("^%s:%s$", partialPatternStr, partialPatternStr);
+        Pattern pattern = Pattern.compile(fullPatternStr);
         for (String tag : tags) {
             if (!pattern.matcher(tag).matches()) {
                 System.out.println("Tag and field tag arguments must be in TYPE:VALUE format: " + tag);
