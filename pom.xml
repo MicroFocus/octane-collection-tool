@@ -15,16 +15,16 @@
         <developer>
             <id>m-seldin</id>
             <name>Michael Seldin</name>
-            <email>michael.seldin@hpe.com</email>
+            <email>michael.seldin@microfocus.com</email>
             <roles>
                 <role>Global owner and maintainer</role>
             </roles>
-            <organization>HPE</organization>
+            <organization>Micro Focus</organization>
         </developer>
         <developer>
             <id>radislavB</id>
             <name>Radislav Berkovich</name>
-            <email>radislav.berkovich@hpe.com</email>
+            <email>radislav.berkovich@microfocus.com</email>
             <roles>
                 <role>Global owner and maintainer</role>
             </roles>
@@ -33,9 +33,9 @@
 
     <packaging>pom</packaging>
 
-    <url>https://github.com/HPSoftware/octane-collection-tool</url>
+    <url>https://github.com/MicroFocus/octane-collection-tool</url>
     <organization>
-        <name>HPE</name>
+        <name>Micro Focus</name>
     </organization>
     <licenses>
         <license>
@@ -46,9 +46,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:ssh://github.com/HPSoftware/octane-collection-tool.git</connection>
-        <developerConnection>scm:git:ssh://github.com/HPSoftware/octane-collection-tool.git</developerConnection>
-        <url>https://github.com/HPSoftware/octane-collection-tool</url>
+        <connection>scm:git:ssh://github.com/MicroFocus/octane-collection-tool.git</connection>
+        <developerConnection>scm:git:ssh://github.com/MicroFocus/octane-collection-tool.git</developerConnection>
+        <url>https://github.com/MicroFocus/octane-collection-tool</url>
         <tag>HEAD</tag>
     </scm>
 

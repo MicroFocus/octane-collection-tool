@@ -1,7 +1,7 @@
 README
 ======
 
-HP Lifecycle Management Test Result Collection Tool
+Micro Focus Lifecycle Management Test Result Collection Tool
 ------------------------------------------------------------------------------------------------------------------------
 Certain versions of software accessible here may contain branding from Hewlett-Packard Company (now HP Inc.) and Hewlett Packard Enterprise Company.
 As of September 1, 2017, the software is now offered by Micro Focus, a separately owned and operated company.

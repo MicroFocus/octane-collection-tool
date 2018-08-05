@@ -1,14 +1,14 @@
 README
 ======
 
-HPE ALM Test Result Collection Tool
+Micro Focus ALM Test Result Collection Tool
 ------------------------------------------------------------------------------------------------------------------------
 Certain versions of software accessible here may contain branding from Hewlett-Packard Company (now HP Inc.) and Hewlett Packard Enterprise Company.
 As of September 1, 2017, the software is now offered by Micro Focus, a separately owned and operated company.
 Any reference to the HP and Hewlett Packard Enterprise/HPE marks is historical in nature, and the HP and Hewlett Packard Enterprise/HPE marks are the property of their respective owners.
 ------------------------------------------------------------------------------------------------------------------------
 
-The HPE ALM Test Result Collection Tool is a command line tool for retrieving test results from ALM and sending them to ALM Octane.
+The Micro Focus ALM Test Result Collection Tool is a command line tool for retrieving test results from ALM and sending them to ALM Octane.
 
 ------------------------------------------------------------------------------------------------------------------------
 Usage ******************************************************************************************************************
