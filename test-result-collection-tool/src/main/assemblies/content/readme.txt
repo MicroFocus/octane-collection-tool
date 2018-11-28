@@ -9,7 +9,7 @@ Any reference to the HP and Hewlett Packard Enterprise/HPE marks is historical i
 ------------------------------------------------------------------------------------------------------------------------
 
 The Test Result Collection Tool is a command line tool for pushing test 
-result XML files to the MQM test result API.
+result XML files to the ALM Octane test result API.
 
 Usage
 -----
