@@ -17,30 +17,30 @@ Latest release branch status:
  
  
  OPTIONS:
- * **-a,--product-area <ID>**          assign the test result to product area
+ * **-a,--product-area <ID>**            assign the test result to product area
  * **-b,--backlog-item <ID>**            assign the test result to backlog item
  * **-c,--config-file <FILE>**           configuration file location
-    *    **--check-result**                 check test result status after push
-    *   **--check-result-timeout <SEC>**   timeout for test result push status
-                                   retrieval
+    *    **--check-result**              check test result status after push
+    *   **--check-result-timeout <SEC>** timeout for test result push status
+                                         retrieval
  * **-d,--shared-space <ID>**            server shared space to push to
  * **-e,--skip-errors**                  skip errors on the server side
  * **-f,--field <TYPE:VALUE>**           assign field tag to test result
  * **-h,--help**                         show this help
  * **-i,--internal**                     supplied XML files are in the API
-                                   internal XML format
+                                         internal XML format
  * **-o,--output-file <FILE>**           write output to file instead of pushing
-                                   it to the server
+                                         it to the server
  * **-p,--password <PASSWORD>**          server password
-    *   **--password-file <FILE>**         location of file with server password
-    *    **--proxy-host <HOSTNAME>**        proxy host
-    *    **--proxy-password <PASSWORD>**    proxy password
-    *   **--proxy-password-file <FILE>**   location of file with proxy password
-    *   **--proxy-port <PORT>**            proxy port
-    *   **--proxy-user <USERNAME>**        proxy username
+    *   **--password-file <FILE>**       location of file with server password
+    *    **--proxy-host <HOSTNAME>**     proxy host
+    *    **--proxy-password <PASSWORD>** proxy password
+    *   **--proxy-password-file <FILE>** location of file with proxy password
+    *   **--proxy-port <PORT>**          proxy port
+    *   **--proxy-user <USERNAME>**      proxy username
  * **-r,--release <ID>**                 assign release to test result
  * **-s,--server <URL:PORT>**            server URL with protocol and port
-    *   **--started <TIMESTAMP>**          start time in milliseconds
+    *   **--started <TIMESTAMP>**        start time in milliseconds
  * **-t,--tag <TYPE:VALUE>**             assign tag to test result
  * **-u,--user <USERNAME>**              server username
  * **-v,--version**                      show version of this tool
