@@ -1,7 +1,5 @@
 ![Micro Focus Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Micro_Focus_logo.svg/220px-Micro_Focus_logo.svg.png)
 # Micro Focus Lifecycle Management Test Result Collection Tool
-The Test Result Collection Tool is a command line tool for pushing test 
-result XML files to the ALM Octane test result API.
 
 
 Project status:
