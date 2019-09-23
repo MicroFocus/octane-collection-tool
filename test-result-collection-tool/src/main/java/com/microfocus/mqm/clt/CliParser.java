@@ -38,7 +38,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "Micro Focus Lifecycle Management Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.8";
+    private static final String VERSION = "1.0.9";
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
