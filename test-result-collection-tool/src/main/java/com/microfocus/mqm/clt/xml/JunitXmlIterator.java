@@ -18,6 +18,7 @@ package com.microfocus.mqm.clt.xml;
 
 import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.tests.TestResultStatus;
+import com.sun.xml.internal.stream.events.CharacterEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.ValidationException;
@@ -39,6 +40,12 @@ public class JunitXmlIterator extends AbstractXmlIterator<TestResult> {
     private long duration;
     private long started;
 
+    private String stackTraceStr;
+    private String errorType;
+    private String errorMsg;
+    private boolean allowStackTraceAggregation;
+
+
     public JunitXmlIterator(File junitXmlFile, Long started) throws XMLStreamException, ValidationException, IOException {
         super(junitXmlFile);
         this.started = (started == null) ? System.currentTimeMillis() : started;
@@ -46,6 +53,7 @@ public class JunitXmlIterator extends AbstractXmlIterator<TestResult> {
 
     @Override
     protected void onEvent(XMLEvent event) throws IOException {
+        Iterator attrIterator;
         if (event instanceof StartElement) {
             StartElement element = (StartElement) event;
             String localName = element.getName().getLocalPart();
@@ -56,36 +64,61 @@ public class JunitXmlIterator extends AbstractXmlIterator<TestResult> {
                 status = TestResultStatus.PASSED;
                 duration = 0;
 
-                Iterator iterator = element.getAttributes();
-                while (iterator.hasNext()) {
-                    Attribute attribute = (Attribute) iterator.next();
+                attrIterator = element.getAttributes();
+                while (attrIterator.hasNext()) {
+                    Attribute attribute = (Attribute) attrIterator.next();
                     if ("classname".equals(attribute.getName().toString())) {
                         parseClassname(attribute.getValue());
                     } else if ("name".equals(attribute.getName().toString())) {
-                        testName = attribute.getValue();
+                        testName = restrictSizeTo255(attribute.getValue());
                     } else if ("time".equals(attribute.getName().toString())) {
-                        duration = parseTime(attribute.getValue());
+                        duration = parseDuration(attribute.getValue());
                     }
                 }
             } else if ("skipped".equals(localName)) { // NON-NLS
                 status = TestResultStatus.SKIPPED;
-            } else if ("failure".equals(localName)) { // NON-NLS
-                // This should cover the rerunFailure as well
+            } else if ("failure".equals(localName) || "error".equals(localName)) { // NON-NLS
+                allowStackTraceAggregation = true;
                 status = TestResultStatus.FAILED;
-            } else if ("error".equals(localName)) { // NON-NLS
-                status = TestResultStatus.FAILED;
+                stackTraceStr = "";
+                attrIterator = element.getAttributes();
+                while (attrIterator.hasNext()) {
+                    Attribute attribute = (Attribute) attrIterator.next();
+                    if ("message".equals(attribute.getName().toString())) {
+                        errorMsg = attribute.getValue();
+                    } else if ("type".equals(attribute.getName().toString())) {
+                        errorType = attribute.getValue();
+                    }
+                }
             }
         } else if (event instanceof EndElement) {
             EndElement element = (EndElement) event;
             String localName = element.getName().getLocalPart();
-
+            allowStackTraceAggregation = false;
             if ("testcase".equals(localName) && StringUtils.isNotEmpty(testName)) { // NON-NLS
-                addItem(new TestResult(packageName, className, testName, status, duration, started));
+                TestResult tr = new TestResult(packageName, className, testName, status, duration, started);
+                if(TestResultStatus.FAILED.equals(status)){
+                    tr.setFailedInfo(errorType, errorMsg, stackTraceStr);
+                }
+                addItem(tr);
+            }
+        } else if (event instanceof CharacterEvent) {
+            if (allowStackTraceAggregation) {
+                stackTraceStr += ((CharacterEvent) event).getData();
             }
         }
     }
 
-    private long parseTime(String timeString) {
+    private String restrictSizeTo255(String value) {
+        int RESTRICT_SIZE = 255;
+        String result = value;
+        if (value != null && value.length() > RESTRICT_SIZE) {
+            result = value.substring(0, RESTRICT_SIZE);
+        }
+        return result;
+    }
+
+    private long parseDuration(String timeString) {
         try {
             float seconds = Float.parseFloat(timeString);
             return (long) (seconds * 1000);

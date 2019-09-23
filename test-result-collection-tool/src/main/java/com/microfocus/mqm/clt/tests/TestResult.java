@@ -25,6 +25,9 @@ final public class TestResult implements Serializable {
     private final TestResultStatus result;
     private final long duration;
     private final long started;
+    private String errorType;
+    private String errorMsg;
+    private String stackTraceStr;
 
     public TestResult(String packageName, String className, String testName, TestResultStatus result, long duration, long started) {
         this.packageName = packageName;
@@ -57,5 +60,23 @@ final public class TestResult implements Serializable {
 
     public long getStarted() {
         return started;
+    }
+
+    public void setFailedInfo(String errorType, String errorMsg, String stackTraceStr) {
+        this.errorType = errorType;
+        this.errorMsg = errorMsg;
+        this.stackTraceStr = stackTraceStr;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public String getStackTraceStr() {
+        return stackTraceStr;
     }
 }

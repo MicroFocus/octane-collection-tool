@@ -17,6 +17,7 @@ package com.microfocus.mqm.clt.xml;
 
 import com.microfocus.mqm.clt.Settings;
 import com.microfocus.mqm.clt.tests.TestResult;
+import com.microfocus.mqm.clt.tests.TestResultStatus;
 import org.apache.commons.io.IOUtils;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -52,6 +53,14 @@ public class TestResultXmlWriter {
             writer.writeAttribute("status", item.getResult().toPrettyName());
             writer.writeAttribute("duration", String.valueOf(item.getDuration()));
             writer.writeAttribute("started", String.valueOf(item.getStarted()));
+
+            if (TestResultStatus.FAILED.equals(item.getResult())) {
+                writer.writeStartElement("error");
+                writer.writeAttribute("type", item.getErrorType());
+                writer.writeAttribute("message", item.getErrorMsg());
+                writer.writeCharacters(item.getStackTraceStr());
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
         }
     }

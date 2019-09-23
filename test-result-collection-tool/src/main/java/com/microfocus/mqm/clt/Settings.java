@@ -38,6 +38,7 @@ public class Settings {
     private static final String PROP_SHARED_SPACE = "sharedspace";
     private static final String PROP_WORKSPACE = "workspace";
     private static final String PROP_USER = "user";
+    private static final String PROP_PASSWORD = "password";
     private static final String PROP_PROXY_HOST = "proxyhost";
     private static final String PROP_PROXY_PORT = "proxyport";
     private static final String PROP_PROXY_USER = "proxyuser";
@@ -90,6 +91,7 @@ public class Settings {
         sharedspace = properties.getProperty(PROP_SHARED_SPACE) != null ? Integer.valueOf(properties.getProperty(PROP_SHARED_SPACE)) : null;
         workspace = properties.getProperty(PROP_WORKSPACE) != null ? Integer.valueOf(properties.getProperty(PROP_WORKSPACE)) : null;
         user = properties.getProperty(PROP_USER);
+        password = properties.getProperty(PROP_PASSWORD);
         proxyHost = properties.getProperty(PROP_PROXY_HOST);
         if (StringUtils.isNotEmpty(properties.getProperty(PROP_PROXY_PORT))) {
             proxyPort = Integer.valueOf(properties.getProperty(PROP_PROXY_PORT));
