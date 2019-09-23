@@ -18,15 +18,11 @@ package com.microfocus.mqm.clt.xml;
 
 import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.tests.TestResultStatus;
-import com.sun.xml.internal.stream.events.CharacterEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.ValidationException;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.events.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -102,9 +98,9 @@ public class JunitXmlIterator extends AbstractXmlIterator<TestResult> {
                 }
                 addItem(tr);
             }
-        } else if (event instanceof CharacterEvent) {
+        } else if (event instanceof Characters) {
             if (allowStackTraceAggregation) {
-                stackTraceStr += ((CharacterEvent) event).getData();
+                stackTraceStr += ((Characters) event).getData();
             }
         }
     }
