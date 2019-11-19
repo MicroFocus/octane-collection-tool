@@ -21,9 +21,12 @@
         <skipped/>
     </testcase>
     <testcase name="testNameFailed" time="0.003">
-        <failure type="java.lang.NullPointerException"/>
+        <failure message="NullPointerException is occurred" type="java.lang.NullPointerException"/>
     </testcase>
     <testcase name="testNameWithError" time="0.004">
-        <error type="java.lang.AssertionError"/>
+        <error message="Assert error" type="java.lang.AssertionError">
+			junit.framework.AssertionFailedError: assert failed
+				at MF.simple.tests.AppTest.testA(AppTest.java:47)
+		</error>
     </testcase>
 </testsuite>

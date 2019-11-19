@@ -56,9 +56,15 @@ public class TestResultXmlWriter {
 
             if (TestResultStatus.FAILED.equals(item.getResult())) {
                 writer.writeStartElement("error");
-                writer.writeAttribute("type", item.getErrorType());
-                writer.writeAttribute("message", item.getErrorMsg());
-                writer.writeCharacters(item.getStackTraceStr());
+                if (item.getErrorType() != null) {
+                    writer.writeAttribute("type", item.getErrorType());
+                }
+                if (item.getErrorMsg() != null) {
+                    writer.writeAttribute("message", item.getErrorMsg().trim());
+                }
+                if (item.getStackTraceStr() != null) {
+                    writer.writeCharacters(item.getStackTraceStr().trim());
+                }
                 writer.writeEndElement();
             }
             writer.writeEndElement();
@@ -114,7 +120,7 @@ public class TestResultXmlWriter {
         writer.writeStartElement(elementName);
         for (String typeValueField : typeValueArray) {
             // Array values were validated - are in TYPE:VALUE format
-            String [] typeAndValue = typeValueField.split(":");
+            String[] typeAndValue = typeValueField.split(":");
             writeTypeValueField(fieldName, typeAndValue[0], typeAndValue[1]);
         }
         writer.writeEndElement();
