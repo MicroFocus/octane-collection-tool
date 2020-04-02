@@ -25,12 +25,10 @@ import org.apache.http.entity.FileEntity;
 import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,32 +126,19 @@ public class TestResultCollectionTool {
          }
      }
 
-    private boolean validatePublishResult(long testResultId, String fileName) {
-        String publishResult = null;
+    private void validatePublishResult(long testResultId, String fileName) {
+        TestResultPushStatus publishResult = null;
         try {
             publishResult = getPublishResult(testResultId);
         } catch (InterruptedException e) {
             System.out.println("Thread was interrupted: " + e.getMessage());
             System.exit(ReturnCode.FAILURE.getReturnCode());
         }
-        if (StringUtils.isEmpty(publishResult)) {
+        if (publishResult == null) {
             System.out.println("Unable to verify publish result of the last push from file '" + fileName + "' with ID: " + testResultId);
-            return false;
         }
-
-        Set<String> allowedPublishResults = new HashSet<String>();
-        allowedPublishResults.add("success");
-        if (settings.isSkipErrors()) {
-            allowedPublishResults.add("warning");
-        }
-        if (!allowedPublishResults.contains(publishResult)) {
-            System.out.println("Test result from file '" + fileName + "' with ID " + testResultId + " was not pushed - " +
-                    "please check if all references (e.g. release id) are correct or try to set skip-errors option");
-            return false;
-        } else {
-            System.out.println("Test result from file '" + fileName + "' with ID " + testResultId + " was successfully pushed");
-            return true;
-        }
+        System.out.println("Test result from file '" + fileName + "' was pushed to the server with ID " + testResultId + ", injection status is '" + publishResult.getStatus() + "'"
+                + (StringUtils.isNotEmpty(publishResult.getErrorMessage()) ? ", error message is '" + publishResult.getErrorMessage() + "'" : ""));
     }
 
     private void processJunitReport(File junitReport, File outputFile) {
@@ -163,17 +148,17 @@ public class TestResultCollectionTool {
         xmlProcessor.writeTestResults(testResults, settings, outputFile);
     }
 
-    private String getPublishResult(long id) throws InterruptedException {
-        String status = null;
+    private TestResultPushStatus getPublishResult(long id) throws InterruptedException {
+        TestResultPushStatus testResultPushStatus = null;
         int timeout = (settings.getCheckResultTimeout() != null) ? settings.getCheckResultTimeout() : 10;
         for (int i = 0; i < timeout * 10; i++) {
-            TestResultPushStatus testResultPushStatus = client.getTestResultStatus(id);
-            status = testResultPushStatus.getStatus();
+            testResultPushStatus = client.getTestResultStatus(id);
+            String status = testResultPushStatus.getStatus();
             if (!"running".equals(status) && !"queued".equals(status)) {
                 break;
             }
             Thread.sleep(100);
         }
-        return status;
+        return testResultPushStatus;
     }
 }

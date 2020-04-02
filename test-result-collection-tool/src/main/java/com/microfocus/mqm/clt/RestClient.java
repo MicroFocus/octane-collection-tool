@@ -167,7 +167,7 @@ public class RestClient {
                     throw new RuntimeException("Cannot obtain status", e);
                 }
             }
-            return new TestResultPushStatus(jsonObject.getString("status"), until);
+            return new TestResultPushStatus(jsonObject.getString("status"), until, jsonObject.optString("errorDetails"));
         } catch (IOException e) {
             throw new RuntimeException("Cannot obtain status.", e);
         } finally {

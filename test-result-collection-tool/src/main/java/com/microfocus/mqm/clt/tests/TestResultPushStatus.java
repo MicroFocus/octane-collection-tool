@@ -22,10 +22,12 @@ public class TestResultPushStatus {
 
     private String status;
     private Date until;
+    private String errorMessage;
 
-    public TestResultPushStatus(String status, Date until) {
+    public TestResultPushStatus(String status, Date until, String errorMessage) {
         this.until = until;
         this.status = status;
+        this.errorMessage = errorMessage;
     }
 
     public String getStatus() {
@@ -34,5 +36,9 @@ public class TestResultPushStatus {
 
     public Date getUntil() {
         return until;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }

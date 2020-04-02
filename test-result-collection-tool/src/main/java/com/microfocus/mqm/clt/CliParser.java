@@ -210,7 +210,7 @@ public class CliParser {
             }
 
             if (cmd.hasOption("check-result-timeout")) {
-                settings.setCheckResultTimeout(((Long) cmd.getParsedOptionValue("check-status-timeout")).intValue());
+                settings.setCheckResultTimeout(((Long) cmd.getParsedOptionValue("check-result-timeout")).intValue());
             }
 
             if (cmd.hasOption("t")) {
