@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,6 +68,9 @@ public class Settings {
     private List<Integer> backlogItems;
     private Long started;
 
+    private Integer suite;
+    private String suiteExternalRunId;
+
     private List<String> inputXmlFileNames;
 
     private DefaultConfigFilenameProvider defaultConfigFilenameProvider = new ImplDefaultConfigFilenameProvider();
@@ -91,7 +93,7 @@ public class Settings {
         sharedspace = properties.getProperty(PROP_SHARED_SPACE) != null ? Integer.valueOf(properties.getProperty(PROP_SHARED_SPACE)) : null;
         workspace = properties.getProperty(PROP_WORKSPACE) != null ? Integer.valueOf(properties.getProperty(PROP_WORKSPACE)) : null;
         user = properties.getProperty(PROP_USER);
-        password = properties.getProperty(PROP_PASSWORD);
+        this.setPassword(properties.getProperty(PROP_PASSWORD));
         proxyHost = properties.getProperty(PROP_PROXY_HOST);
         if (StringUtils.isNotEmpty(properties.getProperty(PROP_PROXY_PORT))) {
             proxyPort = Integer.valueOf(properties.getProperty(PROP_PROXY_PORT));
@@ -298,6 +300,22 @@ public class Settings {
      */
     public void setDefaultConfigFilenameProvider(DefaultConfigFilenameProvider defaultConfigFilenameProvider) {
         this.defaultConfigFilenameProvider = defaultConfigFilenameProvider;
+    }
+
+    public Integer getSuite() {
+        return suite;
+    }
+
+    public void setSuite(Integer suite) {
+        this.suite = suite;
+    }
+
+    public String getSuiteExternalRunId() {
+        return suiteExternalRunId;
+    }
+
+    public void setSuiteExternalRunId(String suiteExternalRunId) {
+        this.suiteExternalRunId = suiteExternalRunId;
     }
 
     private static class ImplDefaultConfigFilenameProvider implements DefaultConfigFilenameProvider {

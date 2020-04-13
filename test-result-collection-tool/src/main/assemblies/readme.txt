@@ -41,6 +41,8 @@ Usage
  -r,--release <ID>                 assign release to test result
  -s,--server <URL:PORT>            server URL with protocol and port
     --started <TIMESTAMP>          start time in milliseconds
+    --suite <ID>                   assign suite to test result
+    --suite-external-run-id <arg>  assign suite run to test result
  -t,--tag <TYPE:VALUE>             assign tag to test result
  -u,--user <USERNAME>              server username
  -v,--version                      show version of this tool
@@ -96,6 +98,7 @@ The password can be entered in the following ways:
 *  User is prompted to enter password on console
 *  Password is entered directly to command line (--password option)
 *  Password is entered from file (--password-file option)
+*  Password is part of configuration file (password option)
 
 Supported test result formats
 -----------------------------

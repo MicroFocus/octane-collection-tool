@@ -15,14 +15,7 @@
  */
 package com.microfocus.mqm.clt;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,9 +29,9 @@ import java.util.regex.Pattern;
 public class CliParser {
 
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
-    private static final String HEADER = "Micro Focus Lifecycle Management Test Result Collection Tool";
+    private static final String HEADER = "Micro Focus ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.10";
+    private static final String VERSION = "1.0.11";//ALM Octane v15.1.3
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
@@ -83,8 +76,11 @@ public class CliParser {
         options.addOption(Option.builder("b").longOpt("backlog-item").desc("assign the test result to backlog item").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder().longOpt("started").desc("start time in milliseconds").hasArg().argName("TIMESTAMP").type(Number.class).build());
 
+        options.addOption(Option.builder().longOpt("suite").desc("assign suite to test result").hasArg().argName("ID").type(Number.class).build());
+        options.addOption(Option.builder().longOpt("suite-external-run-id").desc("assign suite run to test result").hasArg().build());
+
         argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "started", "check-status",
-                "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file"));
+                "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id"));
         argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "a", "b", "started"));
     }
 
@@ -171,7 +167,7 @@ public class CliParser {
                         System.out.println("Can not read the password file: " + cmd.getOptionValue("password-file"));
                         System.exit(ReturnCode.FAILURE.getReturnCode());
                     }
-                } else {
+                } else if (settings.getPassword() == null) {//password was not  added in configuration file
                     System.out.println("Please enter your password if it's required and hit enter: ");
                     settings.setPassword(new String(System.console().readPassword()));
                 }
@@ -223,6 +219,14 @@ public class CliParser {
 
             if (cmd.hasOption("r")) {
                 settings.setRelease(((Long) cmd.getParsedOptionValue("r")).intValue());
+            }
+
+            if (cmd.hasOption("suite")) {
+                settings.setSuite(((Long) cmd.getParsedOptionValue("suite")).intValue());
+            }
+
+            if (cmd.hasOption("suite-external-run-id")) {
+                settings.setSuiteExternalRunId((cmd.getOptionValue("suite-external-run-id")));
             }
 
             if (cmd.hasOption("started")) {

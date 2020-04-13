@@ -97,6 +97,14 @@ public class TestResultXmlWriter {
         if (settings == null) {
             return;
         }
+        if (settings.getSuite() != null) {
+            writer.writeStartElement("suite_ref");
+            writer.writeAttribute("id", String.valueOf(settings.getSuite()));
+            if (settings.getSuiteExternalRunId() != null) {
+                writer.writeAttribute("external_run_id", settings.getSuiteExternalRunId());
+            }
+            writer.writeEndElement(); // suite_ref
+        }
         if (settings.getRelease() != null) {
             writer.writeStartElement("release_ref");
             writer.writeAttribute("id", String.valueOf(settings.getRelease()));
