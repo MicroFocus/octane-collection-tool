@@ -28,7 +28,7 @@
             <destName>test-result-collection-tool.jar</destName>
         </file>
         <file>
-            <source>../${project.basedir}/README.md</source>
+            <source>${project.basedir}/src/main/assemblies/readme.txt</source>
         </file>
     </files>
 </assembly>

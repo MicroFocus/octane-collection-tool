@@ -13,15 +13,6 @@
     <description>Collection tool to bridge between Octane and ALM</description>
     <developers>
         <developer>
-            <id>m-seldin</id>
-            <name>Michael Seldin</name>
-            <email>michael.seldin@microfocus.com</email>
-            <roles>
-                <role>Global owner and maintainer</role>
-            </roles>
-            <organization>Micro Focus</organization>
-        </developer>
-        <developer>
             <id>radislavB</id>
             <name>Radislav Berkovich</name>
             <email>radislav.berkovich@microfocus.com</email>
@@ -53,7 +44,7 @@
     </scm>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
+        <jdk.version>1.8</jdk.version>
         <maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
         <commons-io.version>2.4</commons-io.version>
         <commons.lang.version>2.3</commons.lang.version>
