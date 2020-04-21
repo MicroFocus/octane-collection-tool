@@ -64,6 +64,7 @@ public class Settings {
     private List<String> fields;
 
     private Integer release;
+    private Integer milestone;
     private List<Integer> productAreas;
     private List<Integer> backlogItems;
     private Long started;
@@ -235,6 +236,14 @@ public class Settings {
 
     public void setRelease(Integer release) {
         this.release = release;
+    }
+
+    public Integer getMilestone() {
+        return milestone;
+    }
+
+    public void setMilestone(Integer milestone) {
+        this.milestone = milestone;
     }
 
     public List<Integer> getProductAreas() {

@@ -110,6 +110,11 @@ public class TestResultXmlWriter {
             writer.writeAttribute("id", String.valueOf(settings.getRelease()));
             writer.writeEndElement(); // release_ref
         }
+        if (settings.getMilestone() != null) {
+            writer.writeStartElement("milestone_ref");
+            writer.writeAttribute("id", String.valueOf(settings.getMilestone()));
+            writer.writeEndElement(); // milestone_ref
+        }
         if (settings.getBacklogItems() != null) {
             writeRefFields("backlog_items", "backlog_item_ref", settings.getBacklogItems());
         }
