@@ -29,6 +29,7 @@ Usage
  -h,--help                         show this help
  -i,--internal                     supplied XML files are in the API
                                    internal XML format
+ -m,--milestone <ID>               assign milestone to test result
  -o,--output-file <FILE>           write output to file instead of pushing
                                    it to the server
  -p,--password <PASSWORD>          server password
@@ -41,8 +42,8 @@ Usage
  -r,--release <ID>                 assign release to test result
  -s,--server <URL:PORT>            server URL with protocol and port
     --started <TIMESTAMP>          start time in milliseconds
-    --suite <ID>                   assign suite to test result
-    --suite-external-run-id <arg>  assign suite run to test result
+    --suite <ID>                   assign suite to test result (relevant for ALM Octane 15.1.3+)
+    --suite-external-run-id <arg>  assign name to suite run aggregating test results
  -t,--tag <TYPE:VALUE>             assign tag to test result
  -u,--user <USERNAME>              server username
  -v,--version                      show version of this tool
