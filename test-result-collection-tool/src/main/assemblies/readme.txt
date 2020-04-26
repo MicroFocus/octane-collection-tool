@@ -47,7 +47,7 @@ Usage
     --suite <ID>                   assign suite to test result 
 	                               (relevant for ALM Octane 15.1.4+)
     --suite-external-run-id <arg>  assign name to suite run aggregating test results
- -t,--tag <TYPE:VALUE>             assign tag to test result
+ -t,--tag <TYPE:VALUE>             assign environment tag to test runs
  -u,--user <USERNAME>              server username
  -v,--version                      show version of this tool
  -w,--workspace <ID>               server workspace to push to
@@ -156,7 +156,7 @@ User is prompted to enter the password.
         -d 1001 -w 1002 JUnit.xml
 
 2.  Configuration of the server is specified in a separate configuration  
-file. Password is entered directly on the command line, test fields and tags are assigned to 
+file. Password is entered directly on the command line, test fields and run environments tags are assigned to
 the test results generated from two JUnit files.
 
     java -jar test-result-collection-tool.jar -c someConfig.properties -p  "password" 

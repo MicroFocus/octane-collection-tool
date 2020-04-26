@@ -68,7 +68,7 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("check-result").desc("check test result status after push").build());
         options.addOption(Option.builder().longOpt("check-result-timeout").desc("timeout for test result push status retrieval").hasArg().argName("SEC").type(Number.class).build());
 
-        options.addOption(Option.builder("t").longOpt("tag").desc("assign tag to test result").hasArg().argName("TYPE:VALUE").build());
+        options.addOption(Option.builder("t").longOpt("tag").desc("assign environment tag to test runs").hasArg().argName("TYPE:VALUE").build());
         options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result, relevant for the following fields : Testing_Tool_Type, Framework, Test_Level, Testing_Tool_Type").hasArg().argName("TYPE:VALUE").build());
 
         options.addOption(Option.builder("r").longOpt("release").desc("assign release to test result").hasArg().argName("ID").type(Number.class).build());
