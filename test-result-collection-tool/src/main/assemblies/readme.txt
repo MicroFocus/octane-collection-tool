@@ -25,13 +25,15 @@ Usage
                                    retrieval
  -d,--shared-space <ID>            server shared space to push to
  -e,--skip-errors                  skip errors on the server side
- -f,--field <TYPE:VALUE>           assign field tag to test result
+ -f,--field <TYPE:VALUE>           assign field tag to test result. relevant 
+                                   for the following fields : Testing_Tool_Type, 
+								   Framework, Test_Level, Testing_Tool_Type
  -h,--help                         show this help
  -i,--internal                     supplied XML files are in the API
                                    internal XML format
  -m,--milestone <ID>               assign milestone to test result
- -o,--output-file <FILE>           write output to file instead of pushing
-                                   it to the server
+ -o,--output-file <FILE>           write output in the API internal XML format to file 
+                                   instead of pushing it to the server
  -p,--password <PASSWORD>          server password
     --password-file <FILE>         location of file with server password
     --proxy-host <HOSTNAME>        proxy host
@@ -42,7 +44,8 @@ Usage
  -r,--release <ID>                 assign release to test result
  -s,--server <URL:PORT>            server URL with protocol and port
     --started <TIMESTAMP>          start time in milliseconds
-    --suite <ID>                   assign suite to test result (relevant for ALM Octane 15.1.3+)
+    --suite <ID>                   assign suite to test result 
+	                               (relevant for ALM Octane 15.1.4+)
     --suite-external-run-id <arg>  assign name to suite run aggregating test results
  -t,--tag <TYPE:VALUE>             assign tag to test result
  -u,--user <USERNAME>              server username
@@ -59,7 +62,7 @@ This data can be passed as command-line arguments or in a configuration file.
 Example configuration file:
 
     # Server URL with protocol and port
-    server=http://myserver.hpe.com:8080
+    server=http://myserver.mf.com:8080
     # Server sharedspace ID
     sharedspace=1001
     # Server workspace ID
@@ -67,11 +70,13 @@ Example configuration file:
     # Server username
     user=test@hpe.com
     # Proxy host address
-    proxyhost=proxy.hpe.com
+    proxyhost=proxy.mf.com
     # Proxy port number
     proxyport=8080
     # Proxy username
     proxyuser=test
+	# Password
+	password=W3lcome1
 
 If the configuration file is named 'config.properties' and is in same 
 directory as this tool, it is automatically detected. Otherwise, pass the 
@@ -107,24 +112,30 @@ Supported test result formats
 This tool accepts JUnit test reports. This format is shown in the following example:
 
     <!-- element encapsulating testcases -->
-    <testsuite>
-        <!-- testcase contains mandatory attribute 'name' -->
-        <!-- and optionally 'classname', 'time' -->
-        <testcase classname="com.examples.example.SampleClass" 
-            name="passedTest" time="0.001"/>
-        <!-- 'skipped' element is present for skipped tests -->
-        <testcase name="skippedTest" time="0.002">
-            <skipped/>
-        </testcase>
-        <!-- 'failure' element is present for failed tests -->
-        <testcase name="failedTest">
-            <failure/>
-        </testcase>
-        <!-- 'error' element is present for tests with error -->
-        <testcase name="testWithError" time="0.004">
-            <error/>
-        </testcase>
-    </testsuite>
+	<testsuite>
+	  <!-- testcase contains mandatory attribute 'name' -->
+	  <!-- and optionally 'classname', 'time' -->
+	  <testcase classname="com.examples.example.SampleClass" name="passedTest" time="0.001"/>
+	  
+	  <!-- 'skipped' element is present for skipped tests -->
+	  <testcase name="skippedTest" time="0.002">
+		<skipped/>
+	  </testcase>
+	  
+	  <!-- 'failure' element is present for failed tests -->
+	  <testcase name="failedTest">
+		<failure message="my assertion" type="junit.framework.AssertionFailedError">
+					my full assertion description
+				</failure>
+	  </testcase>
+	  
+	  <!-- 'error' element is present for tests with error -->
+	  <testcase name="testWithError" time="0.004">
+		<error message="my error message" type="java.lang.RuntimeException">
+				my full error description
+				</error>
+	  </testcase>
+	</testsuite>
 
 Additional information like release, taxonomy tags, or field tags can 
 be set as command line arguments for JUnit test reports.
@@ -145,14 +156,15 @@ User is prompted to enter the password.
         -d 1001 -w 1002 JUnit.xml
 
 2.  Configuration of the server is specified in a separate configuration  
-file. Password is entered directly on the command line and tags are assigned to 
-the test results generated from both JUnit files.
+file. Password is entered directly on the command line, test fields and tags are assigned to 
+the test results generated from two JUnit files.
 
-    java -jar test-result-collection-tool.jar -c someConfig.properties -p 
-        "password" -t "OS:Linux" -t "DB:Oracle" JUnitOne.xml JUnitTwo.xml
+    java -jar test-result-collection-tool.jar -c someConfig.properties -p  "password" 
+	-t "OS:Linux" -t "DB:Oracle" -f "Testing_Tool_Type:Testing_Tool_Type"
+	-f "Test_Level:Integration Test" -f "Test_Type:End to End" -f "Framework:TestNG"
+	JUnitOne.xml JUnitTwo.xml
 
 3.  Server configuration is automatically loaded from the 'config.properties' 
-file, which is placed in the same directory as this tool. See the format
-example above in the "Configuration" section.
+file, which is placed in the same directory as this tool. Result file appear in internal XML format (-i option).
 
     java -jar test-result-collection-tool.jar -i publicApi.xml

@@ -31,7 +31,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "Micro Focus ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.11.2";//ALM Octane v15.1.3
+    private static final String VERSION = "1.0.11.3";//ALM Octane v15.1.3
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
@@ -43,7 +43,7 @@ public class CliParser {
 
         options.addOption("i", "internal", false, "supplied XML files are in the API internal XML format");
         options.addOption("e", "skip-errors", false, "skip errors on the server side");
-        options.addOption(Option.builder("o").longOpt("output-file").desc("write output to file instead of pushing it to the server").hasArg().argName("FILE").build());
+        options.addOption(Option.builder("o").longOpt("output-file").desc("write output in the API internal XML format to file instead of pushing it to the server").hasArg().argName("FILE").build());
         options.addOption(Option.builder("c").longOpt("config-file").desc("configuration file location").hasArg().argName("FILE").build());
 
         options.addOption(Option.builder("s").longOpt("server").desc("server URL with protocol and port").hasArg().argName("URL:PORT").build());
@@ -69,7 +69,7 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("check-result-timeout").desc("timeout for test result push status retrieval").hasArg().argName("SEC").type(Number.class).build());
 
         options.addOption(Option.builder("t").longOpt("tag").desc("assign tag to test result").hasArg().argName("TYPE:VALUE").build());
-        options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result").hasArg().argName("TYPE:VALUE").build());
+        options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result, relevant for the following fields : Testing_Tool_Type, Framework, Test_Level, Testing_Tool_Type").hasArg().argName("TYPE:VALUE").build());
 
         options.addOption(Option.builder("r").longOpt("release").desc("assign release to test result").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder("m").longOpt("milestone").desc("assign milestone to test result").hasArg().argName("ID").type(Number.class).build());
