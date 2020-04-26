@@ -29,8 +29,7 @@ Usage
                                    for the following fields : Testing_Tool_Type, 
 								   Framework, Test_Level, Testing_Tool_Type
  -h,--help                         show this help
- -i,--internal                     supplied XML files are in the API
-                                   internal XML format
+ -i,--internal                     supplied XML files are in the API internal format
  -m,--milestone <ID>               assign milestone to test result
  -o,--output-file <FILE>           write output in the API internal XML format to file 
                                    instead of pushing it to the server
@@ -145,6 +144,7 @@ the -i or --internal option. If you use the API internal format, more parameters
 set in the XML file than are available in the JUnit test reports. For  
 example, release, taxonomy tags, field tags,and so on. The API internal  
 format is defined in testResult.xsd, on the MQM server.
+Read more: https://admhelp.microfocus.com/octane/en/latest/Online/Content/API/test-results.htm
 
 Examples
 --------
