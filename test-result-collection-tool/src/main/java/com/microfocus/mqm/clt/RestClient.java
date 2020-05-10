@@ -17,11 +17,12 @@
 package com.microfocus.mqm.clt;
 
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
-
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
@@ -34,28 +35,38 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.*;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.json.JSONObject;
 
+import javax.net.ssl.*;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class RestClient {
@@ -96,6 +107,10 @@ public class RestClient {
         this.settings = settings;
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom();
+        if(settings.getServer().trim().toLowerCase().startsWith("https")){
+            configureSSLContext(httpClientBuilder);
+        }
+
         cookieStore = new BasicCookieStore();
         httpClientBuilder.setDefaultCookieStore(cookieStore);
         RequestConfig.Builder requestConfigBuilder = RequestConfig.custom()
@@ -119,6 +134,89 @@ public class RestClient {
         }
         httpClient = httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build()).build();
 
+    }
+
+    private void configureSSLContext(HttpClientBuilder httpClientBuilder) {
+        SSLContext sslContext;
+        try {
+            sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, getTrustManagers(), new java.security.SecureRandom());
+        } catch (Exception e) {
+            sslContext = SSLContexts.createSystemDefault();
+        }
+        HostnameVerifier hostnameVerifier = new CustomHostnameVerifier();
+        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                .register("https", sslSocketFactory)
+                .build();
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+
+        //set new connection manager
+        httpClientBuilder.setConnectionManager(connectionManager);
+    }
+
+    private TrustManager[] getTrustManagers() throws NoSuchAlgorithmException, KeyStoreException {
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init((KeyStore) null);
+        TrustManager[] tmArr = tmf.getTrustManagers();
+        if (tmArr.length == 1 && tmArr[0] instanceof X509TrustManager) {
+            final X509TrustManager defaultTm = (X509TrustManager) tmArr[0];
+            TrustManager myTM = new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return defaultTm.getAcceptedIssuers();
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                    defaultTm.checkClientTrusted(certs, authType);
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                    try {
+                        defaultTm.checkServerTrusted(certs, authType);
+                    } catch (CertificateException e) {
+                        for (X509Certificate cer : certs) {
+                            if (cer.getIssuerDN().getName() != null && cer.getIssuerDN().getName().toLowerCase().contains("microfocus")) {
+                                return;
+                            }
+                        }
+                        throw e;
+                    }
+                }
+            };
+
+            return new TrustManager[]{myTM};
+        } else {
+            //add log
+            return tmArr;
+        }
+    }
+
+    public static final class CustomHostnameVerifier implements HostnameVerifier {
+        private final HostnameVerifier defaultVerifier = new DefaultHostnameVerifier();
+
+        public boolean verify(String host, SSLSession sslSession) {
+            boolean result = defaultVerifier.verify(host, sslSession);
+            if (!result) {
+                try {
+                    Certificate[] ex = sslSession.getPeerCertificates();
+                    X509Certificate x509 = (X509Certificate) ex[0];
+                    Collection<List<?>> altNames = x509.getSubjectAlternativeNames();
+                    for (List<?> namePair : altNames) {
+                        if (namePair != null &&
+                                namePair.size() > 1 &&
+                                namePair.get(1) instanceof String &&
+                                "*.saas.microfocus.com".equals(namePair.get(1))) {
+                            result = true;
+                            break;
+                        }
+                    }
+                } catch (CertificateParsingException | SSLException cpe) {
+                    //add log
+                }
+            }
+            return result;
+        }
     }
 
     public long postTestResult(HttpEntity entity) throws IOException, ValidationException {
