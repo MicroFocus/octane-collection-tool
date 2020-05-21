@@ -35,6 +35,7 @@ Usage
                                    instead of pushing it to the server
  -p,--password <PASSWORD>          server password
     --password-file <FILE>         location of file with server password
+    --program <ID>                 assign program to test result
     --proxy-host <HOSTNAME>        proxy host
     --proxy-password <PASSWORD>    proxy password
     --proxy-password-file <FILE>   location of file with proxy password
@@ -44,7 +45,7 @@ Usage
  -s,--server <URL:PORT>            server URL with protocol and port
     --started <TIMESTAMP>          start time in milliseconds
     --suite <ID>                   assign suite to test result 
-	                               (relevant for ALM Octane 15.1.4+)
+	                               (relevant for ALM Octane 15.1.8+)
     --suite-external-run-id <arg>  assign name to suite run aggregating test results
  -t,--tag <TYPE:VALUE>             assign environment tag to test runs
  -u,--user <USERNAME>              server username

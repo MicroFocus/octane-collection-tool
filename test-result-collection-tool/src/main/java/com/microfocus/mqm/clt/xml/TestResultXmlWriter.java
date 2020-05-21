@@ -105,6 +105,11 @@ public class TestResultXmlWriter {
             }
             writer.writeEndElement(); // suite_ref
         }
+        if (settings.getProgram() != null) {
+            writer.writeStartElement("program_ref");
+            writer.writeAttribute("id", String.valueOf(settings.getProgram()));
+            writer.writeEndElement(); // product_ref
+        }
         if (settings.getRelease() != null) {
             writer.writeStartElement("release_ref");
             writer.writeAttribute("id", String.valueOf(settings.getRelease()));

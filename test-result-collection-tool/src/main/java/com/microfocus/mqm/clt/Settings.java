@@ -64,6 +64,7 @@ public class Settings {
     private List<String> fields;
 
     private Integer release;
+    private Integer program;
     private Integer milestone;
     private List<Integer> productAreas;
     private List<Integer> backlogItems;
@@ -325,6 +326,14 @@ public class Settings {
 
     public void setSuiteExternalRunId(String suiteExternalRunId) {
         this.suiteExternalRunId = suiteExternalRunId;
+    }
+
+    public Integer getProgram() {
+        return program;
+    }
+
+    public void setProgram(Integer program) {
+        this.program = program;
     }
 
     private static class ImplDefaultConfigFilenameProvider implements DefaultConfigFilenameProvider {
