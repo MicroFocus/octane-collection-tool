@@ -64,6 +64,7 @@ public class Settings {
     private List<String> fields;
 
     private Integer release;
+    private boolean isDefaultRelease = false;
     private Integer program;
     private Integer milestone;
     private List<Integer> productAreas;
@@ -237,6 +238,14 @@ public class Settings {
 
     public void setRelease(Integer release) {
         this.release = release;
+    }
+
+    public void setDefaultRelease() {
+        this.isDefaultRelease = true;
+    }
+
+    public boolean isDefaultRelease() {
+        return this.isDefaultRelease ;
     }
 
     public Integer getMilestone() {

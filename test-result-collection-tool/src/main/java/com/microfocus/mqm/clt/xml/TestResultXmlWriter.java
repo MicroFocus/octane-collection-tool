@@ -115,6 +115,11 @@ public class TestResultXmlWriter {
             writer.writeAttribute("id", String.valueOf(settings.getRelease()));
             writer.writeEndElement(); // release_ref
         }
+        if (settings.isDefaultRelease()) {
+            writer.writeStartElement("release");
+            writer.writeAttribute("name", "_default_");
+            writer.writeEndElement(); // release
+        }
         if (settings.getMilestone() != null) {
             writer.writeStartElement("milestone_ref");
             writer.writeAttribute("id", String.valueOf(settings.getMilestone()));

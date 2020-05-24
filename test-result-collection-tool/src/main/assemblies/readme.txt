@@ -27,7 +27,7 @@ Usage
  -e,--skip-errors                  skip errors on the server side
  -f,--field <TYPE:VALUE>           assign field tag to test result. relevant 
                                    for the following fields : Testing_Tool_Type, 
-								   Framework, Test_Level, Testing_Tool_Type
+                                   Framework, Test_Level, Testing_Tool_Type
  -h,--help                         show this help
  -i,--internal                     supplied XML files are in the API internal format
  -m,--milestone <ID>               assign milestone to test result
@@ -42,10 +42,12 @@ Usage
     --proxy-port <PORT>            proxy port
     --proxy-user <USERNAME>        proxy username
  -r,--release <ID>                 assign release to test result
+    --release-default              assign default release to test result
+                                   (relevant for ALM Octane 15.1.8 and above)
  -s,--server <URL:PORT>            server URL with protocol and port
     --started <TIMESTAMP>          start time in milliseconds
     --suite <ID>                   assign suite to test result 
-	                               (relevant for ALM Octane 15.1.8+)
+                                   (relevant for ALM Octane 15.1.8 and above)
     --suite-external-run-id <arg>  assign name to suite run aggregating test results
  -t,--tag <TYPE:VALUE>             assign environment tag to test runs
  -u,--user <USERNAME>              server username
@@ -55,7 +57,7 @@ Usage
 Configuration
 -------------
 
-To push test results to MQM server, this tool requires the server location 
+To push test results to ALM Octane server, this tool requires the server location
 (-s option), sharedspace ID (-d option) and workspace ID (-w option). 
 This data can be passed as command-line arguments or in a configuration file. 
 

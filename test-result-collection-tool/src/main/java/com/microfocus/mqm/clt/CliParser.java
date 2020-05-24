@@ -31,7 +31,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "Micro Focus ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.11.5";//ALM Octane v15.1.7
+    private static final String VERSION = "1.0.11.6";//ALM Octane v15.1.8
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
@@ -72,16 +72,17 @@ public class CliParser {
         options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result, relevant for the following fields : Testing_Tool_Type, Framework, Test_Level, Testing_Tool_Type").hasArg().argName("TYPE:VALUE").build());
 
         options.addOption(Option.builder("r").longOpt("release").desc("assign release to test result").hasArg().argName("ID").type(Number.class).build());
+        options.addOption(Option.builder().longOpt("release-default").desc("assign default release to test result (relevant for ALM Octane 15.1.8 and above)").build());
         options.addOption(Option.builder().longOpt("program").desc("assign program to test result").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder("m").longOpt("milestone").desc("assign milestone to test result").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder("a").longOpt("product-area").desc("assign the test result to product area").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder("b").longOpt("backlog-item").desc("assign the test result to backlog item").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder().longOpt("started").desc("start time in milliseconds").hasArg().argName("TIMESTAMP").type(Number.class).build());
 
-        options.addOption(Option.builder().longOpt("suite").desc("assign suite to test result (relevant for ALM Octane 15.1.3+)").hasArg().argName("ID").type(Number.class).build());
+        options.addOption(Option.builder().longOpt("suite").desc("assign suite to test result (relevant for ALM Octane 15.1.8 and above)").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder().longOpt("suite-external-run-id").desc("assign name to suite run aggregating test results").hasArg().build());
 
-        argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "m", "started", "check-status","program",
+        argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status","program",
                 "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id"));
         argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started"));
     }
@@ -221,6 +222,10 @@ public class CliParser {
 
             if (cmd.hasOption("r")) {
                 settings.setRelease(((Long) cmd.getParsedOptionValue("r")).intValue());
+            }
+
+            if (cmd.hasOption("release-default")) {
+                settings.setDefaultRelease();
             }
 
             if (cmd.hasOption("program")) {
@@ -404,6 +409,11 @@ public class CliParser {
 
             if (settings.getCheckResultTimeout() != null && settings.getCheckResultTimeout() < 1) {
                 System.out.println("Timeout has to be positive integer");
+                return false;
+            }
+
+            if (settings.getRelease() != null && settings.isDefaultRelease()) {
+                System.out.println("Default release cannot be assigned along with release ID assignment");
                 return false;
             }
         }
