@@ -71,14 +71,14 @@ Example configuration file:
     workspace=1002
     # Server username
     user=test@hpe.com
+    # Server username password
+    password=W3lcome1
     # Proxy host address
     proxyhost=proxy.mf.com
     # Proxy port number
     proxyport=8080
     # Proxy username
     proxyuser=test
-	# Password
-	password=W3lcome1
 
 If the configuration file is named 'config.properties' and is in same 
 directory as this tool, it is automatically detected. Otherwise, pass the 
