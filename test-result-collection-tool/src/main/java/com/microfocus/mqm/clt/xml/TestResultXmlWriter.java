@@ -84,7 +84,7 @@ public class TestResultXmlWriter {
     private void initialize(Settings settings) throws IOException, InterruptedException, XMLStreamException {
         if (outputStream == null) {
             outputStream = new FileOutputStream(targetPath);
-            writer = possiblyCreateIndentingWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream));
+            writer = possiblyCreateIndentingWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, "UTF-8"));
             writer.writeStartDocument();
 
             writer.writeStartElement("test_result");

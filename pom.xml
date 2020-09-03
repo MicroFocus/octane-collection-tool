@@ -44,7 +44,7 @@
     </scm>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
+        <jdk.version>1.7</jdk.version>
         <maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
         <commons-io.version>2.4</commons-io.version>
         <commons.lang.version>2.3</commons.lang.version>

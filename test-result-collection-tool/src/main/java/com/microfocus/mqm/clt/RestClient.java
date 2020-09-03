@@ -49,6 +49,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.net.ssl.*;
@@ -223,11 +224,19 @@ public class RestClient {
         HttpPost request = new HttpPost(createWorkspaceApiUri(URI_TEST_RESULT_PUSH, settings.isSkipErrors()));
         request.setEntity(entity);
         CloseableHttpResponse response = null;
+        JSONObject jsonObject;
         try {
             response = execute(request);
+            String json = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+            try {
+                jsonObject = new JSONObject(json);
+            } catch (JSONException e) {
+                //failed to parse json
+                throw new RuntimeException("Test result post ended with status code (" +
+                        response.getStatusLine().getStatusCode() + "). Failed to parse json : " + json);
+            }
+
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_ACCEPTED) {
-                String json = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-                JSONObject jsonObject = new JSONObject(json);
                 String description = "";
                 if (jsonObject.has("description")) {
                     description = ": " + jsonObject.getString("description");
@@ -238,10 +247,9 @@ public class RestClient {
                 }
                 throw new RuntimeException("Test result post failed with status code (" +
                         response.getStatusLine().getStatusCode() + ")" + description);
+            } else {
+                return jsonObject.getLong("id");
             }
-            String json = IOUtils.toString(response.getEntity().getContent());
-            JSONObject jsonObject = new JSONObject(json);
-            return jsonObject.getLong("id");
         } finally {
             HttpClientUtils.closeQuietly(response);
         }

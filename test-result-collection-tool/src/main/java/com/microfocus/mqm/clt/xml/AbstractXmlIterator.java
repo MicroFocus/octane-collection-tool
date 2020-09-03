@@ -54,7 +54,7 @@ public abstract class AbstractXmlIterator<E> {
 
     public AbstractXmlIterator(File xmlFile) throws XMLStreamException, FileNotFoundException {
         this.is = new FileInputStream(xmlFile);
-        reader = createXmlInputFactory().createXMLEventReader(is);
+        reader = createXmlInputFactory().createXMLEventReader(is, "UTF-8");
         queue = new LinkedList<E>();
     }
 
