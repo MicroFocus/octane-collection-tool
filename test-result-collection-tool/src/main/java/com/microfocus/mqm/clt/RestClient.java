@@ -232,8 +232,8 @@ public class RestClient {
                 jsonObject = new JSONObject(json);
             } catch (JSONException e) {
                 //failed to parse json
-                throw new RuntimeException("Test result post ended with status code (" +
-                        response.getStatusLine().getStatusCode() + "). Failed to parse json : " + json);
+                throw new RuntimeException("Test result post ended with status code (" +  response.getStatusLine().getStatusCode()
+                        + ").Validate that the URL of the ALM Octane server is defined with its fully qualified domain name. Original message : " + json);
             }
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_ACCEPTED) {
