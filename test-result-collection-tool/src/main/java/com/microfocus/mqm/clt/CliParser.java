@@ -82,9 +82,9 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("suite").desc("assign suite to test result (relevant for ALM Octane 15.1.8 and above)").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder().longOpt("suite-external-run-id").desc("assign name to suite run aggregating test results").hasArg().build());
 
-        argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status","program",
+        argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status", "program",
                 "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id"));
-        argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started"));
+        argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default"));
     }
 
     public Settings parse(String[] args) {
