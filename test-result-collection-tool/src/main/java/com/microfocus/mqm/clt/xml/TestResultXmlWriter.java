@@ -81,16 +81,28 @@ public class TestResultXmlWriter {
         }
     }
 
-    private void initialize(Settings settings) throws IOException, InterruptedException, XMLStreamException {
+    private void initialize(Settings settings) throws IOException, XMLStreamException {
         if (outputStream == null) {
             outputStream = new FileOutputStream(targetPath);
             writer = possiblyCreateIndentingWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, "UTF-8"));
             writer.writeStartDocument();
 
             writer.writeStartElement("test_result");
+            writeBuildContext(settings);
             writeFields(settings);
             writer.writeStartElement("test_runs");
         }
+    }
+
+    private void writeBuildContext(Settings settings) throws XMLStreamException {
+        if (settings == null || !settings.isBuildContextDefined()) {
+            return;
+        }
+        writer.writeStartElement("build");
+        writer.writeAttribute("server_id", settings.getBuildContextServerId());
+        writer.writeAttribute("job_id", settings.getBuildContextJobId());
+        writer.writeAttribute("build_id", settings.getBuildContextBuildId());
+        writer.writeEndElement(); // build
     }
 
     private void writeFields(Settings settings) throws XMLStreamException {

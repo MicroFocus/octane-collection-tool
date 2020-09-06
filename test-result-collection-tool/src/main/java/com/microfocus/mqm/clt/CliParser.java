@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,11 +32,12 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "Micro Focus ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.11.8";//ALM Octane v15.1.8
+    private static final String VERSION = "1.0.11.9";
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
-    private LinkedList<String> argsRestrictedForInternal = new LinkedList<String>();
+    private LinkedList<String> argsRestrictedForInternal = new LinkedList<>();
+    private LinkedList<String> argsForBuildContext = new LinkedList<>();
 
     public CliParser() {
         options.addOption("h", "help", false, "show this help");
@@ -82,9 +84,18 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("suite").desc("assign suite to test result (relevant for ALM Octane 15.1.8 and above)").hasArg().argName("ID").type(Number.class).build());
         options.addOption(Option.builder().longOpt("suite-external-run-id").desc("assign name to suite run aggregating test results").hasArg().build());
 
+        options.addOption(Option.builder().longOpt("build-context-server-id").desc("Server instance id for defining build context.").hasArg().build());
+        options.addOption(Option.builder().longOpt("build-context-build-id").desc("Build id for defining build context.").hasArg().build());
+        options.addOption(Option.builder().longOpt("build-context-job-id").desc("Job id for defining build context.").hasArg().build());
+
+
+
         argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status", "program",
-                "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id"));
-        argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default"));
+                "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id",
+                "build-context-server-id","build-context-build-id","build-context-job-id"));
+        argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default",
+                "build-context-server-id","build-context-build-id","build-context-job-id"));
+        argsForBuildContext.addAll(Arrays.asList("build-context-server-id","build-context-build-id","build-context-job-id"));
     }
 
     public Settings parse(String[] args) {
@@ -256,12 +267,24 @@ public class CliParser {
                 settings.setBacklogItems(cmd.getOptionValues("b"));
             }
 
+            if (cmd.hasOption("build-context-server-id")) {
+                settings.setBuildContextServerId(cmd.getOptionValue("build-context-server-id"));
+            }
+
+            if (cmd.hasOption("build-context-build-id")) {
+                settings.setBuildContextBuildId(cmd.getOptionValue("build-context-build-id"));
+            }
+
+            if (cmd.hasOption("build-context-job-id")) {
+                settings.setBuildContextJobId(cmd.getOptionValue("build-context-job-id"));
+            }
+
             if (!areSettingsValid(settings)) {
                 System.exit(ReturnCode.FAILURE.getReturnCode());
             }
 
         } catch (ParseException e) {
-            printHelp();
+            System.out.println("Failed to parse : " + e.getMessage());
             System.exit(ReturnCode.FAILURE.getReturnCode());
         }
         return settings;
@@ -311,6 +334,27 @@ public class CliParser {
                     System.out.println("Invalid argument for internal mode: '" + arg + "'");
                     return false;
                 }
+            }
+        }
+
+        //build context must have all properties filled
+        boolean buildContextDefined = false;
+        for (String arg : argsForBuildContext) {
+            if (cmd.hasOption(arg)) {
+                buildContextDefined = true;
+                break;
+            }
+        }
+        if (buildContextDefined) {
+            List<String> missingArgs = new ArrayList<>();
+            for (String arg : argsForBuildContext) {
+                if (!cmd.hasOption(arg)) {
+                    missingArgs.add(arg);
+                }
+            }
+            if (!missingArgs.isEmpty()) {
+                System.out.println("For defining build context, need to define additional parameters : " + missingArgs);
+                return false;
             }
         }
 

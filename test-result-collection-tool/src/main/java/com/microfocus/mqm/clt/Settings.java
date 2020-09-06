@@ -74,6 +74,10 @@ public class Settings {
     private Integer suite;
     private String suiteExternalRunId;
 
+    private String buildContextServerId;
+    private String buildContextJobId;
+    private String buildContextBuildId;
+
     private List<String> inputXmlFileNames;
 
     private DefaultConfigFilenameProvider defaultConfigFilenameProvider = new ImplDefaultConfigFilenameProvider();
@@ -343,6 +347,34 @@ public class Settings {
 
     public void setProgram(Integer program) {
         this.program = program;
+    }
+
+    public String getBuildContextServerId() {
+        return buildContextServerId;
+    }
+
+    public void setBuildContextServerId(String buildContextServerId) {
+        this.buildContextServerId = buildContextServerId;
+    }
+
+    public String getBuildContextJobId() {
+        return buildContextJobId;
+    }
+
+    public void setBuildContextJobId(String buildContextJobId) {
+        this.buildContextJobId = buildContextJobId;
+    }
+
+    public String getBuildContextBuildId() {
+        return buildContextBuildId;
+    }
+
+    public void setBuildContextBuildId(String buildContextBuildId) {
+        this.buildContextBuildId = buildContextBuildId;
+    }
+
+    public boolean isBuildContextDefined() {
+        return buildContextServerId != null;
     }
 
     private static class ImplDefaultConfigFilenameProvider implements DefaultConfigFilenameProvider {

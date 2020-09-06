@@ -31,11 +31,11 @@ public class ConnectionProperties {
 	}
 
 	public static String getUsername() {
-		return getStringValue("mqm.user", "admin");
+		return getStringValue("mqm.user", "sa@nga");
 	}
 
 	public static String getPassword() {
-		return getStringValue("mqm.password", "changeit");
+		return getStringValue("mqm.password", "Welcome1");
 	}
 
     public static String getProxyHost() {

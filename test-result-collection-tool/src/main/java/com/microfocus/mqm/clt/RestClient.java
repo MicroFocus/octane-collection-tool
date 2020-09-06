@@ -95,9 +95,6 @@ public class RestClient {
     public static final int DEFAULT_SO_TIMEOUT = 40000; // in milliseconds
     private CookieStore cookieStore;
     private Cookie LWSSO_TOKEN;
-    //private String CSRF_TOKEN;
-    //private String LWSSO_TOKEN;
-
 
     private CloseableHttpClient httpClient;
     private Settings settings;

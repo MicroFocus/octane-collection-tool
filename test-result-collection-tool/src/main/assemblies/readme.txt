@@ -17,42 +17,55 @@ Usage
  java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...
  
  OPTIONS:
- -a,--product-area <ID>            assign the test result to product area
- -b,--backlog-item <ID>            assign the test result to backlog item
- -c,--config-file <FILE>           configuration file location
-    --check-result                 check test result status after push
-    --check-result-timeout <SEC>   timeout for test result push status
-                                   retrieval
- -d,--shared-space <ID>            server shared space to push to
- -e,--skip-errors                  skip errors on the server side
- -f,--field <TYPE:VALUE>           assign field tag to test result. relevant 
-                                   for the following fields : Testing_Tool_Type, 
-                                   Framework, Test_Level, Testing_Tool_Type
- -h,--help                         show this help
- -i,--internal                     supplied XML files are in the API internal format
- -m,--milestone <ID>               assign milestone to test result
- -o,--output-file <FILE>           write output in the API internal XML format to file 
-                                   instead of pushing it to the server
- -p,--password <PASSWORD>          server password
-    --password-file <FILE>         location of file with server password
-    --program <ID>                 assign program to test result
-    --proxy-host <HOSTNAME>        proxy host
-    --proxy-password <PASSWORD>    proxy password
-    --proxy-password-file <FILE>   location of file with proxy password
-    --proxy-port <PORT>            proxy port
-    --proxy-user <USERNAME>        proxy username
- -r,--release <ID>                 assign release to test result
-    --release-default              assign default release to test result
-                                   (relevant for ALM Octane 15.1.8 and above)
- -s,--server <URL:PORT>            server URL with protocol and port
-    --started <TIMESTAMP>          start time in milliseconds
-    --suite <ID>                   assign suite to test result 
-                                   (relevant for ALM Octane 15.1.8 and above)
-    --suite-external-run-id <arg>  assign name to suite run aggregating test results
- -t,--tag <TYPE:VALUE>             assign environment tag to test runs
- -u,--user <USERNAME>              server username
- -v,--version                      show version of this tool
- -w,--workspace <ID>               server workspace to push to
+  -a,--product-area <ID>               assign the test result to product
+                                       area
+  -b,--backlog-item <ID>               assign the test result to backlog
+                                       item
+     --build-context-build-id <arg>    Build id for defining build context.
+     --build-context-job-id <arg>      Job id for defining build context.
+     --build-context-server-id <arg>   Server instance id for defining
+                                       build context.
+  -c,--config-file <FILE>              configuration file location
+     --check-result                    check test result status after push
+     --check-result-timeout <SEC>      timeout for test result push status
+                                       retrieval
+  -d,--shared-space <ID>               server shared space to push to
+  -e,--skip-errors                     skip errors on the server side
+  -f,--field <TYPE:VALUE>              assign field tag to test result,
+                                       relevant for the following fields :
+                                       Testing_Tool_Type, Framework,
+                                       Test_Level, Testing_Tool_Type
+  -h,--help                            show this help
+  -i,--internal                        supplied XML files are in the API
+                                       internal XML format
+  -m,--milestone <ID>                  assign milestone to test result
+  -o,--output-file <FILE>              write output in the API internal XML
+                                       format to file instead of pushing it
+                                       to the server
+  -p,--password <PASSWORD>             server password
+     --password-file <FILE>            location of file with server
+                                       password
+     --program <ID>                    assign program to test result
+     --proxy-host <HOSTNAME>           proxy host
+     --proxy-password <PASSWORD>       proxy password
+     --proxy-password-file <FILE>      location of file with proxy password
+     --proxy-port <PORT>               proxy port
+     --proxy-user <USERNAME>           proxy username
+  -r,--release <ID>                    assign release to test result
+     --release-default                 assign default release to test
+                                       result (relevant for ALM Octane
+                                       15.1.8 and above)
+  -s,--server <URL:PORT>               server URL with protocol and port
+     --started <TIMESTAMP>             start time in milliseconds
+     --suite <ID>                      assign suite to test result
+                                       (relevant for ALM Octane 15.1.8 and
+                                       above)
+     --suite-external-run-id <arg>     assign name to suite run aggregating
+                                       test results
+  -t,--tag <TYPE:VALUE>                assign environment tag to test runs
+  -u,--user <USERNAME>                 server username
+  -v,--version                         show version of this tool
+  -w,--workspace <ID>                  server workspace to push to
 
 Configuration
 -------------
@@ -171,3 +184,8 @@ the test results generated from two JUnit files.
 file, which is placed in the same directory as this tool. Result file appear in internal XML format (-i option).
 
     java -jar test-result-collection-tool.jar -i publicApi.xml
+
+4.  Sending test results with build context. Used to update pipeline builds and suite runs.
+
+    java -jar test-result-collection-tool.jar --build-context-server-id 5b9c0376-169a-4e43-a279-8d7ef2810df6
+    --build-context-job-id myJobId --build-context-build-id 1 JUnitOne.xml JUnitTwo.xml
