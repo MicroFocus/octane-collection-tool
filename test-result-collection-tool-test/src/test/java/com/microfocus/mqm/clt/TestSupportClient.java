@@ -43,9 +43,9 @@ import java.util.Map;
 
 public class TestSupportClient extends RestClient {
 
-    private static final String URI_RELEASES = "releases";
+    private static final String URI_RELEASES = "releases?fields=name";
     private static final String URI_TEST_RUN = "runs";
-    private static final String URI_TAXONOMY_NODES = "taxonomy_nodes";
+    private static final String URI_TAXONOMY_NODES = "taxonomy_nodes?fields=name,category";
 
     private static final String FILTERING_FRAGMENT = "query={query}";
     private static final String PAGING_FRAGMENT = "offset={offset}&limit={limit}";
