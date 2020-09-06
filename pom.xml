@@ -7,10 +7,10 @@
 
     <artifactId>octane-collection-tool</artifactId>
     <groupId>com.hpe.adm.octane.ciplugins</groupId>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.12-SNAPSHOT</version>
 
     <name>Octane Collection Tool</name>
-    <description>Collection tool to bridge between Octane and ALM</description>
+    <description>The Test Result Collection Tool is a command line tool for pushing test result XML files to the MQM test result API. </description>
     <developers>
         <developer>
             <id>radislavB</id>
