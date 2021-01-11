@@ -369,7 +369,8 @@ public class RestClient {
     }
 
     private URI createBaseUri(String template, Object... params) {
-        String result = settings.getServer() + "/" + resolveTemplate(template, asMap(params));
+        String slash = settings.getServer().endsWith("/") ? "" : "/";
+        String result = settings.getServer() + slash + resolveTemplate(template, asMap(params));
         return URI.create(result);
     }
 
