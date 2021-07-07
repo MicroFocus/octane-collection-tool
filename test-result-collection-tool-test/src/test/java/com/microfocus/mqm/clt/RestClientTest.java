@@ -16,6 +16,7 @@
 
 package com.microfocus.mqm.clt;
 
+import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.model.PagedList;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
 import com.microfocus.mqm.clt.model.TestRun;
@@ -29,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

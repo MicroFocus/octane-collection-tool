@@ -16,6 +16,7 @@
 
 package com.microfocus.mqm.clt;
 
+import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.net.ssl.*;
-import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

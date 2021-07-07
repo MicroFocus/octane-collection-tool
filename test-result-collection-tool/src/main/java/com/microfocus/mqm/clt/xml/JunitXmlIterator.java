@@ -20,7 +20,6 @@ import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.tests.TestResultStatus;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.xml.bind.ValidationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
 import java.io.File;
@@ -42,7 +41,7 @@ public class JunitXmlIterator extends AbstractXmlIterator<TestResult> {
     private boolean allowStackTraceAggregation;
 
 
-    public JunitXmlIterator(File junitXmlFile, Long started) throws XMLStreamException, ValidationException, IOException {
+    public JunitXmlIterator(File junitXmlFile, Long started) throws XMLStreamException, IOException {
         super(junitXmlFile);
         this.started = (started == null) ? System.currentTimeMillis() : started;
     }

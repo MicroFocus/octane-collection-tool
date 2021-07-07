@@ -25,7 +25,6 @@ import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.ValidationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;

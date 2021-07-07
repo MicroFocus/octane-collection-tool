@@ -16,13 +16,13 @@
 
 package com.microfocus.mqm.clt;
 
+import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 
-import javax.xml.bind.ValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
