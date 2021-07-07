@@ -20,7 +20,6 @@ import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.xml.JunitXmlIterator;
 import com.microfocus.mqm.clt.xml.TestResultXmlWriter;
 
-import javax.xml.bind.ValidationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +49,6 @@ public class XmlProcessor {
             System.exit(ReturnCode.FAILURE.getReturnCode());
         } catch (InterruptedException e) {
             System.out.println("Unable to process JUnit XML file '" + junitTestReport.getAbsolutePath() + "', thread was interrupted: " + e.getMessage());
-            System.exit(ReturnCode.FAILURE.getReturnCode());
-        } catch (ValidationException e) {
-            System.out.println("Unable to process JUnit XML file '" + junitTestReport.getAbsolutePath() + "', XSD validation was not successful: " + e.getMessage());
             System.exit(ReturnCode.FAILURE.getReturnCode());
         } catch (RuntimeException e) {
             System.out.println("Unable to process JUnit XML file '" + junitTestReport.getAbsolutePath() + "', XSD validation was not successful: " + e.getMessage());
