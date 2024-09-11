@@ -1,5 +1,5 @@
-![Micro Focus Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Micro_Focus_logo.svg/220px-Micro_Focus_logo.svg.png)
-# Micro Focus Lifecycle Management Test Result Collection Tool
+![OpenText Logo](https://upload.wikimedia.org/wikipedia/commons/1/1b/OpenText_logo.svg)
+# Open Text Lifecycle Management Test Result Collection Tool
 
 
 Project status:
