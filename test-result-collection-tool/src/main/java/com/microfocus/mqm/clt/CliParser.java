@@ -48,7 +48,7 @@ public class CliParser {
     private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
     private static final String HEADER = "Open Text ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
-    private static final String VERSION = "1.0.14";
+    private static final String VERSION = "1.0.15";
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
