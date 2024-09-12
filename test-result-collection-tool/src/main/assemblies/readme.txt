@@ -1,15 +1,15 @@
 README
 ======
 
-Micro Focus Lifecycle Management Test Result Collection Tool
+Open Text Lifecycle Management Test Result Collection Tool
 ------------------------------------------------------------------------------------------------------------------------
 Certain versions of software accessible here may contain branding from Hewlett-Packard Company (now HP Inc.) and Hewlett Packard Enterprise Company.
-As of September 1, 2017, the software is now offered by Micro Focus, a separately owned and operated company.
+This software was acquired by Micro Focus on September 1, 2017, and is now offered by OpenText, a separately owned and operated company.
 Any reference to the HP and Hewlett Packard Enterprise/HPE marks is historical in nature, and the HP and Hewlett Packard Enterprise/HPE marks are the property of their respective owners.
 ------------------------------------------------------------------------------------------------------------------------
 
-The Test Result Collection Tool is a command line tool for pushing test 
-result XML files to the ALM Octane test result API.
+The Test Result Collection Tool is a command line tool for pushing test result XML files to the ALM Octane test result API.
+Supported XML formats are the ALM Octane / ValueEdge format and JUnit format
 
 Usage
 -----
@@ -42,9 +42,9 @@ Usage
   -o,--output-file <FILE>              write output in the API internal XML
                                        format to file instead of pushing it
                                        to the server
-  -p,--password <PASSWORD>             server password
+  -p,--password <PASSWORD>             server password or client secret
      --password-file <FILE>            location of file with server
-                                       password
+                                       password/client secret
      --program <ID>                    assign program to test result
      --proxy-host <HOSTNAME>           proxy host
      --proxy-password <PASSWORD>       proxy password
@@ -63,7 +63,7 @@ Usage
      --suite-external-run-id <arg>     assign name to suite run aggregating
                                        test results
   -t,--tag <TYPE:VALUE>                assign environment tag to test runs
-  -u,--user <USERNAME>                 server username
+  -u,--user <USERNAME>                 server username/client id
   -v,--version                         show version of this tool
   -w,--workspace <ID>                  server workspace to push to
 
@@ -82,9 +82,9 @@ Example configuration file:
     sharedspace=1001
     # Server workspace ID
     workspace=1002
-    # Server username
+    # Server username or client id
     user=test@hpe.com
-    # Server username password
+    # Server username password or client secret
     password=W3lcome1
     # Proxy host address
     proxyhost=proxy.mf.com
@@ -112,14 +112,14 @@ Some server-side errors can cause test result push failure even when the
 pushed XML is well formatted. You can use the skip-errors flag (-e option) to 
 force pushing such a test result.
 
-Password handling
+Password/Client secret handling
 -----------------
 
-The password can be entered in the following ways:
+The password/Client secret can be entered in the following ways:
 *  User is prompted to enter password on console
-*  Password is entered directly to command line (--password option)
-*  Password is entered from file (--password-file option)
-*  Password is part of configuration file (password option)
+*  Password/Client secret is entered directly to command line (--password option)
+*  Password/Client secret is entered from file (--password-file option)
+*  Password/Client secret is part of configuration file (password option)
 
 Supported test result formats
 -----------------------------
@@ -166,13 +166,13 @@ Examples
 --------
 
 1.  Server configuration is entered directly on the command line. 
-User is prompted to enter the password.
+User is prompted to enter the password or client secret.
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080" 
         -d 1001 -w 1002 JUnit.xml
 
 2.  Configuration of the server is specified in a separate configuration  
-file. Password is entered directly on the command line, test fields and run environments tags are assigned to
+file. Password or client secret is entered directly on the command line, test fields and run environments tags are assigned to
 the test results generated from two JUnit files.
 
     java -jar test-result-collection-tool.jar -c someConfig.properties -p  "password" 
