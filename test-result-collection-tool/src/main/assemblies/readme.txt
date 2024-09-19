@@ -115,6 +115,7 @@ force pushing such a test result.
 Password/Client secret handling
 -----------------
 
+For authentication, the user can use a username and password or generate an API access key as described here: https://admhelp.microfocus.com/octane/en/latest/Online/Content/AdminGuide/how_setup_APIaccess.htm
 The password/Client secret can be entered in the following ways:
 *  User is prompted to enter password on console
 *  Password/Client secret is entered directly to command line (--password option)
