@@ -117,7 +117,8 @@ Password handling
 
 For authentication the user can use a username and password, or generate an API access key comprised of a client ID and client secret,
 as described here: https://admhelp.microfocus.com/octane/en/latest/Online/Help_Center.htm#CSHID=api_access_tab.
-If using an API access key: enter the client ID as the username, and the client secret as the password.
+We recommend using an API access key. A username and password can be used for test purposes, but for production an API access key is strongly recommended.
+When using an API access key: enter the client ID as the username, and the client secret as the password.
 
 The password can be entered in the following ways:
 *  User is prompted to enter password on console
