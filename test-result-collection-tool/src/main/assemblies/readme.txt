@@ -42,9 +42,9 @@ Usage
   -o,--output-file <FILE>              write output in the API internal XML
                                        format to file instead of pushing it
                                        to the server
-  -p,--password <PASSWORD>             server password or client secret
+  -p,--password <PASSWORD>             server password
      --password-file <FILE>            location of file with server
-                                       password/client secret
+                                       password
      --program <ID>                    assign program to test result
      --proxy-host <HOSTNAME>           proxy host
      --proxy-password <PASSWORD>       proxy password
@@ -63,7 +63,7 @@ Usage
      --suite-external-run-id <arg>     assign name to suite run aggregating
                                        test results
   -t,--tag <TYPE:VALUE>                assign environment tag to test runs
-  -u,--user <USERNAME>                 server username/client id
+  -u,--user <USERNAME>                 server username
   -v,--version                         show version of this tool
   -w,--workspace <ID>                  server workspace to push to
 
@@ -82,12 +82,12 @@ Example configuration file:
     sharedspace=1001
     # Server workspace ID
     workspace=1002
-    # Server username or client id
+    # Server username
     user=test@hpe.com
-    # Server username password or client secret
+    # Server username password
     password=W3lcome1
     # Proxy host address
-    proxyhost=proxy.mf.com
+    proxyhost=proxy.ot.com
     # Proxy port number
     proxyport=8080
     # Proxy username
@@ -112,16 +112,18 @@ Some server-side errors can cause test result push failure even when the
 pushed XML is well formatted. You can use the skip-errors flag (-e option) to 
 force pushing such a test result.
 
-Password/Client secret handling
+Password handling
 -----------------
 
-For authentication, the user can use a username and password or generate an API access key as described here:
-https://admhelp.microfocus.com/octane/en/latest/Online/Content/AdminGuide/how_setup_APIaccess.htm
-The password/Client secret can be entered in the following ways:
+For authentication the user can use a username and password, or generate an API access key comprised of a client ID and client secret,
+as described here: https://admhelp.microfocus.com/octane/en/latest/Online/Help_Center.htm#CSHID=api_access_tab.
+If using an API access key: enter the client ID as the username, and the client secret as the password.
+
+The password can be entered in the following ways:
 *  User is prompted to enter password on console
-*  Password/Client secret is entered directly to command line (--password option)
-*  Password/Client secret is entered from file (--password-file option)
-*  Password/Client secret is part of configuration file (password option)
+*  Password is entered directly to command line (--password option)
+*  Password is entered from file (--password-file option)
+*  Password is part of configuration file (password option)
 
 Supported test result formats
 -----------------------------
@@ -168,13 +170,13 @@ Examples
 --------
 
 1.  Server configuration is entered directly on the command line. 
-User is prompted to enter the password or client secret.
+User is prompted to enter the password.
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080" 
         -d 1001 -w 1002 JUnit.xml
 
 2.  Configuration of the server is specified in a separate configuration  
-file. Password or client secret is entered directly on the command line, test fields and run environments tags are assigned to
+file. Password is entered directly on the command line, test fields and run environments tags are assigned to
 the test results generated from two JUnit files.
 
     java -jar test-result-collection-tool.jar -c someConfig.properties -p  "password" 
