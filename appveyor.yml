@@ -1,9 +1,18 @@
 version: 1.0.{build}
+
+# appveyor.yml
 image: Visual Studio 2022
 
-environment:
-  JAVA_HOME: "C:\\Program Files\\Eclipse Adoptium\\jdk-11.0.22.7-hotspot"
-  PATH: "%JAVA_HOME%\\bin;%PATH%"
+install:
+  # Install the JDK
+  - ps: choco install temurin11 -y
+
+  # Find the installed JDK path and set JAVA_HOME for this build session
+  - ps: |
+      $jdk = Get-ChildItem "C:\Program Files\Eclipse Adoptium\" -Recurse -Directory -Filter "jdk-11*" | Select-Object -First 1
+      $env:JAVA_HOME = $jdk.FullName
+      [Environment]::SetEnvironmentVariable("JAVA_HOME", $env:JAVA_HOME, "Process")
+      $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 
 build_script:
   - cmd: java -version
