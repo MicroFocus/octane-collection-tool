@@ -47,6 +47,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -146,6 +147,8 @@ public class TestResultCollectionToolTest {
         PagedList<TestRun> pagedList = testSupportClient.queryTestRuns("testOne" + timestamp, 0, 50);
         Assert.assertEquals(0, pagedList.getItems().size());
 
+        Thread.sleep(2000);
+
         pagedList = testSupportClient.queryTestRuns("testTwo" + timestamp, 0, 50);
         Assert.assertEquals(1, pagedList.getItems().size());
         TestRun testRun = pagedList.getItems().get(0);
@@ -159,7 +162,7 @@ public class TestResultCollectionToolTest {
         settings.setSharedspace(SHARED_SPACE);
         settings.setWorkspace(WORKSPACE);
         settings.setUser(USERNAME);
-        settings.setPassword(PASSWORD);
+        settings.setPassword(PASSWORD.getBytes(StandardCharsets.UTF_8));
         settings.setProxyHost(PROXY_HOST);
         settings.setProxyPort(PROXY_PORT);
         if (ConnectionProperties.getProxyUsername() != null) {
