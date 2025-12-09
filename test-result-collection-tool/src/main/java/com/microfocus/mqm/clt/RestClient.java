@@ -34,8 +34,8 @@ package com.microfocus.mqm.clt;
 
 import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.authentication.AuthenticationMethod;
-import com.microfocus.mqm.clt.authentication.BasicAuthenticationMethodImpl;
-import com.microfocus.mqm.clt.authentication.OAuth2AuthenticationMethodImpl;
+import com.microfocus.mqm.clt.authentication.JSONAuthenticationMethodImpl;
+import com.microfocus.mqm.clt.authentication.TokenExchangeAuthenticationMethodImpl;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -126,9 +126,9 @@ public class RestClient {
                 .setConnectTimeout(DEFAULT_CONNECTION_TIMEOUT);
 
         if(settings.getAccessToken().isEmpty() || settings.getAccessToken().get().length ==0 ){
-            this.authenticationMethod = new BasicAuthenticationMethodImpl(cookieStore);
+            this.authenticationMethod = new JSONAuthenticationMethodImpl(cookieStore);
         } else {
-            this.authenticationMethod = new OAuth2AuthenticationMethodImpl();
+            this.authenticationMethod = new TokenExchangeAuthenticationMethodImpl();
         }
 
 
@@ -336,27 +336,27 @@ public class RestClient {
 
     public void release() throws IOException {
         logout();
-        settings.cleanSetting();
     }
 
     protected synchronized void logout() throws IOException {
         if (isLoggedIn) {
-            if(this.authenticationMethod instanceof BasicAuthenticationMethodImpl) {
-                HttpPost post = new HttpPost(createBaseUri(URI_LOGOUT));
-                addClientTypeHeader(post);
-                HttpResponse response = null;
-                try {
-                    response = httpClient.execute(post);
-                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
-                            && response.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) { // required until defect #2919 is fixed
-                        throw new RuntimeException("Logout failed: code=" + response.getStatusLine().getStatusCode() + "; reason=" + response.getStatusLine().getReasonPhrase());
-                    }
-                    isLoggedIn = false;
-                } finally {
-                    HttpClientUtils.closeQuietly(response);
+            HttpPost post = new HttpPost(createBaseUri(URI_LOGOUT));
+            addClientTypeHeader(post);
+            HttpResponse response = null;
+            try {
+                HttpContext localContext = new BasicHttpContext();
+                CookieStore localCookies = new BasicCookieStore();
+                localCookies.addCookie(AUTH_TOKEN);
+                localContext.setAttribute(HttpClientContext.COOKIE_STORE, localCookies);
+
+                response = httpClient.execute(post,localContext);
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
+                        && response.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) { // required until defect #2919 is fixed
+                    throw new RuntimeException("Logout failed: code=" + response.getStatusLine().getStatusCode() + "; reason=" + response.getStatusLine().getReasonPhrase());
                 }
-            } else {
                 isLoggedIn = false;
+            } finally {
+                HttpClientUtils.closeQuietly(response);
             }
         }
     }

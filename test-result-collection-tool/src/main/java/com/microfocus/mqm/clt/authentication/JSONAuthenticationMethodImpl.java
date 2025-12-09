@@ -12,14 +12,14 @@ import org.apache.http.entity.ContentType;
 
 import java.nio.charset.StandardCharsets;
 
-public class BasicAuthenticationMethodImpl implements AuthenticationMethod {
+public class JSONAuthenticationMethodImpl implements AuthenticationMethod {
 
     private final String URI_AUTHENTICATION = "authentication/sign_in";
 
     private final String LWSSO_COOKIE_NAME = "LWSSO_COOKIE_KEY";
 
     private final CookieStore cookieStore;
-    public BasicAuthenticationMethodImpl(CookieStore cookieStore) {
+    public JSONAuthenticationMethodImpl(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
     }
 

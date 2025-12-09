@@ -19,7 +19,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class OAuth2AuthenticationMethodImpl implements AuthenticationMethod {
+public class TokenExchangeAuthenticationMethodImpl implements AuthenticationMethod {
 
 
     private final String EXCHANGE_TOKEN_URL = "osp/a/au/auth/oauth2/token";

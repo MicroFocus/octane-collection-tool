@@ -127,6 +127,7 @@ public class TestResultCollectionTool {
         if (client != null) {
             try {
                 client.release();
+                settings.cleanSetting();
             } catch (IOException e) {
                 System.out.println("Unable to release client session: " + e.getMessage());
                 System.exit(ReturnCode.FAILURE.getReturnCode());
