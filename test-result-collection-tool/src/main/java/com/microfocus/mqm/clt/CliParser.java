@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -87,6 +88,7 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("check-result-timeout").desc("timeout for test result push status retrieval").hasArg().argName("SEC").type(Number.class).build());
 
         options.addOption(Option.builder("t").longOpt("tag").desc("assign environment tag to test runs").hasArg().argName("TYPE:VALUE").build());
+        options.addOption(Option.builder().longOpt("access-token").desc("IDP access token for authentication").hasArg().argName("PASSWORD").build());
         options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result, relevant for the following fields : Testing_Tool_Type, Framework, Test_Level, Testing_Tool_Type").hasArg().argName("TYPE:VALUE").build());
 
         options.addOption(Option.builder("r").longOpt("release").desc("assign release to test result").hasArg().argName("ID").type(Number.class).build());
@@ -189,17 +191,17 @@ public class CliParser {
 
             if (settings.getOutputFile() == null) {
                 if (cmd.hasOption("p")) {
-                    settings.setPassword(cmd.getOptionValue("p"));
+                    settings.setPassword(cmd.getOptionValue("p").getBytes(StandardCharsets.UTF_8));
                 } else if (cmd.hasOption("password-file")) {
                     try {
-                        settings.setPassword(FileUtils.readFileToString(new File(cmd.getOptionValue("password-file"))));
+                        settings.setPassword(FileUtils.readFileToString(new File(cmd.getOptionValue("password-file"))).getBytes(StandardCharsets.UTF_8));
                     } catch (IOException e) {
                         System.out.println("Can not read the password file: " + cmd.getOptionValue("password-file"));
                         System.exit(ReturnCode.FAILURE.getReturnCode());
                     }
                 } else if (settings.getPassword() == null) {//password was not  added in configuration file
                     System.out.println("Please enter your password if it's required and hit enter: ");
-                    settings.setPassword(new String(System.console().readPassword()));
+                    settings.setPassword(new String(System.console().readPassword()).getBytes(StandardCharsets.UTF_8));
                 }
             }
 
@@ -297,6 +299,10 @@ public class CliParser {
 
             if (!areSettingsValid(settings)) {
                 System.exit(ReturnCode.FAILURE.getReturnCode());
+            }
+
+            if(cmd.hasOption(Settings.PROP_ACCESS_TOKEN)){
+                settings.setAccessToken(cmd.getOptionValue(Settings.PROP_ACCESS_TOKEN).getBytes(StandardCharsets.UTF_8));
             }
 
         } catch (ParseException e) {

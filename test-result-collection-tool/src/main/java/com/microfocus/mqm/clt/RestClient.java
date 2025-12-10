@@ -33,13 +33,13 @@
 package com.microfocus.mqm.clt;
 
 import com.microfocus.mqm.clt.Exception.ValidationException;
+import com.microfocus.mqm.clt.authentication.AuthenticationMethod;
+import com.microfocus.mqm.clt.authentication.JSONAuthenticationMethodImpl;
+import com.microfocus.mqm.clt.authentication.TokenExchangeAuthenticationMethodImpl;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
@@ -59,8 +59,6 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.BasicHttpContext;
@@ -88,13 +86,6 @@ import java.util.regex.Pattern;
 
 public class RestClient {
 
-    private static final String URI_AUTHENTICATION = "authentication/sign_in";
-    private static final String HEADER_NAME_AUTHORIZATION = "Authorization";
-    private static final String HEADER_VALUE_BASIC_AUTH = "Basic ";
-    //private static final String HEADER_CLIENT_TYPE = "HPECLIENTTYPE";
-    private static final String HPSSO_HEADER_NAME = "HPSSO-HEADER-CSRF";
-    private static final String LWSSO_COOKIE_NAME = "LWSSO_COOKIE_KEY";
-
     static final String URI_LOGOUT = "authentication/sign_out";
 
     private static final String SHARED_SPACE_API_URI = "api/shared_spaces/{0}";
@@ -110,12 +101,14 @@ public class RestClient {
     public static final int DEFAULT_CONNECTION_TIMEOUT = 20000; // in milliseconds
     public static final int DEFAULT_SO_TIMEOUT = 40000; // in milliseconds
     private CookieStore cookieStore;
-    private Cookie LWSSO_TOKEN;
+    private Cookie AUTH_TOKEN;
 
     private CloseableHttpClient httpClient;
     private Settings settings;
 
     private volatile boolean isLoggedIn = false;
+
+    private final AuthenticationMethod authenticationMethod;
 
     public RestClient(Settings settings) {
         this.settings = settings;
@@ -132,6 +125,11 @@ public class RestClient {
                 .setSocketTimeout(DEFAULT_SO_TIMEOUT)
                 .setConnectTimeout(DEFAULT_CONNECTION_TIMEOUT);
 
+        if(settings.getAccessToken().isEmpty() || settings.getAccessToken().get().length ==0 ){
+            this.authenticationMethod = new JSONAuthenticationMethodImpl(cookieStore);
+        } else {
+            this.authenticationMethod = new TokenExchangeAuthenticationMethodImpl();
+        }
 
 
         // proxy setting
@@ -294,19 +292,13 @@ public class RestClient {
         }
     }
 
-//    private void doFirstLogin() throws IOException{
-//        if (!isLoggedIn) {
-//            login();
-//        }
-//    }
     protected CloseableHttpResponse execute(HttpUriRequest request) throws IOException {
-        //doFirstLogin();
-        if (LWSSO_TOKEN == null) {
+        if (!isLoggedIn) {
             login();
         }
         HttpContext localContext = new BasicHttpContext();
         CookieStore localCookies = new BasicCookieStore();
-        localCookies.addCookie(LWSSO_TOKEN);
+        localCookies.addCookie(AUTH_TOKEN);
         localContext.setAttribute(HttpClientContext.COOKIE_STORE, localCookies);
         addClientTypeHeader(request);
         CloseableHttpResponse response = httpClient.execute(request, localContext);
@@ -314,7 +306,7 @@ public class RestClient {
             HttpClientUtils.closeQuietly(response);
             login();
             localCookies.clear();
-            localCookies.addCookie(LWSSO_TOKEN);
+            localCookies.addCookie(AUTH_TOKEN);
             localContext.setAttribute(HttpClientContext.COOKIE_STORE, localCookies);
             response = httpClient.execute(request, localContext);
         }
@@ -326,32 +318,20 @@ public class RestClient {
     }
 
     protected synchronized void login() throws IOException {
-        authenticate();
-        isLoggedIn = true;
-    }
-
-    private void authenticate() throws IOException {
-        HttpPost post = new HttpPost(createBaseUri(URI_AUTHENTICATION));
-        addClientTypeHeader(post, true);
-
-        String username = settings.getUser() != null ? settings.getUser() : "";
-        String password = settings.getPassword() != null ? settings.getPassword() : "";
-        String authorization = "{\"user\":\"" + username + "\",\"password\":\"" + password + "\"}";
-        StringEntity httpEntity = new StringEntity(authorization, ContentType.APPLICATION_JSON);
-        post.setEntity(httpEntity);
-
+        HttpPost request = this.authenticationMethod.getLoginRequest(this.settings);
         HttpResponse response = null;
         try {
             cookieStore.clear();
-            response = httpClient.execute(post);
+            response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new RuntimeException("Authentication failed: code=" + response.getStatusLine().getStatusCode() + "; reason=" + response.getStatusLine().getReasonPhrase());
             } else {
-                handleCookies();
+                AUTH_TOKEN = this.authenticationMethod.handleCookies(request,response);
             }
         } finally {
             HttpClientUtils.closeQuietly(response);
         }
+        isLoggedIn = true;
     }
 
     public void release() throws IOException {
@@ -364,7 +344,12 @@ public class RestClient {
             addClientTypeHeader(post);
             HttpResponse response = null;
             try {
-                response = httpClient.execute(post);
+                HttpContext localContext = new BasicHttpContext();
+                CookieStore localCookies = new BasicCookieStore();
+                localCookies.addCookie(AUTH_TOKEN);
+                localContext.setAttribute(HttpClientContext.COOKIE_STORE, localCookies);
+
+                response = httpClient.execute(post,localContext);
                 if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
                         && response.getStatusLine().getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY) { // required until defect #2919 is fixed
                     throw new RuntimeException("Logout failed: code=" + response.getStatusLine().getStatusCode() + "; reason=" + response.getStatusLine().getReasonPhrase());
@@ -390,7 +375,13 @@ public class RestClient {
         return URI.create(result);
     }
 
-    private String resolveTemplate(String template, Map<String, ?> params) {
+    public static URI createBaseUri(String template,String server, Object... params) {
+        String slash = server.endsWith("/") ? "" : "/";
+        String result = server + slash + resolveTemplate(template, asMap(params));
+        return URI.create(result);
+    }
+
+    private static String resolveTemplate(String template, Map<String, ?> params) {
         String result = template;
         for (String param : params.keySet()) {
             Object value = params.get(param);
@@ -399,7 +390,7 @@ public class RestClient {
         return result;
     }
 
-    private String encodeParam(String param) {
+    private static String encodeParam(String param) {
         try {
             return URLEncoder.encode(param, URI_PARAM_ENCODING).replace("+", "%20");
         } catch (UnsupportedEncodingException e) {
@@ -424,37 +415,11 @@ public class RestClient {
         return new SimpleDateFormat(DATETIME_FORMAT).parse(datetime);
     }
 
-    private Map<String, Object> asMap(Object... params) {
+    private static Map<String, Object> asMap(Object... params) {
         Map<String, Object> map = new HashMap<String, Object>();
         for (int i = 0; i < params.length; i++) {
             map.put(String.valueOf(i), params[i]);
         }
         return map;
-    }
-    private void handleCookies() {
-        for (Cookie cookie : cookieStore.getCookies()) {
-            if (cookie.getName().equals(LWSSO_COOKIE_NAME)) {
-                LWSSO_TOKEN = cookie;
-            }
-        }
-//        boolean isCSRF = false;
-//        //boolean isLWSSO = false;
-//        Header[] headers = response.getHeaders("Set-Cookie");
-//        for (Header h : headers) {
-//            HeaderElement[] he = h.getElements();
-//            for (HeaderElement e : he) {
-//                if (e.getName().equals(HPSSO_COOKIE_NAME)) {
-//                    CSRF_TOKEN = e.getValue();
-//                    isCSRF = true;
-//                    break;
-//                }else if(e.getName().equals(LWSSO_COOKIE_NAME)){
-//                        LWSSO_TOKEN = e.getValue();
-//                    //isLWSSO =
-//                }
-//            }
-////            if (isCSRF && ) {
-////                break;
-////            }
-//        }
     }
 }

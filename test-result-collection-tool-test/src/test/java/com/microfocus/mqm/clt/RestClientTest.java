@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 public class RestClientTest {
 
@@ -96,7 +97,7 @@ public class RestClientTest {
 
 		// bad credentials
         testClientSettings.setUser(NONUSER);
-        testClientSettings.setPassword("xxxbadxxxpasswordxxx");
+        testClientSettings.setPassword("xxxbadxxxpasswordxxx".getBytes(StandardCharsets.UTF_8));
 		try {
 			client.login();
 			Assert.fail("Login should failed because of bad credentials.");
@@ -214,7 +215,7 @@ public class RestClientTest {
         settings.setSharedspace(SHARED_SPACE);
         settings.setWorkspace(WORKSPACE);
         settings.setUser(USERNAME);
-        settings.setPassword(PASSWORD);
+        settings.setPassword(PASSWORD.getBytes(StandardCharsets.UTF_8));
         settings.setProxyHost(PROXY_HOST);
         settings.setProxyPort(PROXY_PORT);
         if (ConnectionProperties.getProxyUsername() != null) {

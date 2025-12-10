@@ -52,6 +52,11 @@ public class SettingsTest {
         Assert.assertEquals("test.proxy.hpe.com", settings.getProxyHost());
         Assert.assertEquals(Integer.valueOf(8282), settings.getProxyPort());
         Assert.assertEquals("proxyadmin", settings.getProxyUser());
+        Assert.assertEquals("Welcome1", new String(settings.getPassword()));
+        settings.getAccessToken().ifPresent(accessToken -> {
+            Assert.assertEquals("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAi", new String(accessToken));
+        });
+
     }
 
     @Test

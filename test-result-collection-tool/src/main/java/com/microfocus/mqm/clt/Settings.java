@@ -41,9 +41,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Settings {
 
@@ -57,12 +55,13 @@ public class Settings {
     private static final String PROP_PROXY_HOST = "proxyhost";
     private static final String PROP_PROXY_PORT = "proxyport";
     private static final String PROP_PROXY_USER = "proxyuser";
+    public static final String PROP_ACCESS_TOKEN = "access-token";
 
     private String server;
     private Integer sharedspace;
     private Integer workspace;
     private String user;
-    private String password;
+    private byte[] password;
 
     private String proxyHost;
     private Integer proxyPort;
@@ -96,7 +95,29 @@ public class Settings {
 
     private List<String> inputXmlFileNames;
 
+    private byte[] accessToken;
+
     private DefaultConfigFilenameProvider defaultConfigFilenameProvider = new ImplDefaultConfigFilenameProvider();
+
+    public Optional<byte[]> getAccessToken() {
+        return (accessToken == null || accessToken.length == 0) ? Optional.empty() : Optional.of(accessToken);
+    }
+
+    public void setAccessToken(byte[] accessToken) {
+        if (this.accessToken != null) {
+            clearAccessToken();
+        }
+        this.accessToken = accessToken;
+    }
+
+    private void clearAccessToken() {
+        if (this.accessToken != null) {
+            for (int i = 0; i < this.accessToken.length; i++) {
+                this.accessToken[i] = '\0';
+            }
+            this.accessToken = null;
+        }
+    }
 
     public void load(String filename) throws IOException, IllegalArgumentException {
         File configFile = new File((filename != null) ? filename : defaultConfigFilenameProvider.getDefaultConfigFilename());
@@ -116,12 +137,15 @@ public class Settings {
         sharedspace = properties.getProperty(PROP_SHARED_SPACE) != null ? Integer.valueOf(properties.getProperty(PROP_SHARED_SPACE)) : null;
         workspace = properties.getProperty(PROP_WORKSPACE) != null ? Integer.valueOf(properties.getProperty(PROP_WORKSPACE)) : null;
         user = properties.getProperty(PROP_USER);
-        this.setPassword(properties.getProperty(PROP_PASSWORD));
+        this.setPassword(properties.getProperty(PROP_PASSWORD) != null ? properties.getProperty(PROP_PASSWORD).getBytes(StandardCharsets.UTF_8) : null);
         proxyHost = properties.getProperty(PROP_PROXY_HOST);
         if (StringUtils.isNotEmpty(properties.getProperty(PROP_PROXY_PORT))) {
             proxyPort = Integer.valueOf(properties.getProperty(PROP_PROXY_PORT));
         }
         proxyUser = properties.getProperty(PROP_PROXY_USER);
+
+        byte[] accessToken = properties.getProperty(PROP_ACCESS_TOKEN) != null ? properties.getProperty(PROP_ACCESS_TOKEN).getBytes(StandardCharsets.UTF_8) : null;
+        setAccessToken(accessToken);
     }
 
     public String getServer() {
@@ -156,12 +180,12 @@ public class Settings {
         this.user = user;
     }
 
-    public String getPassword() {
-        return (password == null) ? null : new String(Base64.decodeBase64(password), StandardCharsets.UTF_8);
+    public byte[] getPassword() {
+        return (password == null) ? null : Base64.decodeBase64(password);
     }
 
-    public void setPassword(String password) {
-        this.password = (password == null) ? null : Base64.encodeBase64String(password.getBytes(StandardCharsets.UTF_8));
+    public void setPassword(byte[] password) {
+        this.password = (password == null) ? null : Base64.encodeBase64(password);
     }
 
     public String getProxyHost() {
@@ -404,5 +428,12 @@ public class Settings {
 
         String getDefaultConfigFilename();
 
+    }
+
+    public void cleanSetting(){
+        if (password != null) {
+            Arrays.fill(password, (byte) 0);  // overwrite in place
+        }
+        clearAccessToken();
     }
 }
