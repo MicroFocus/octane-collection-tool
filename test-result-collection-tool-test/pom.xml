@@ -42,7 +42,7 @@
         <groupId>com.hpe.adm.octane.ciplugins</groupId>
         <version>1.0.16-SNAPSHOT</version>
     </parent>
-
+    <name>Test Result Octane Collection Tool Tests</name>
     <artifactId>test-result-collection-tool-test</artifactId>
 
     <properties>
