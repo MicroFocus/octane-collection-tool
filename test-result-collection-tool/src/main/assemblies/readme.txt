@@ -19,6 +19,8 @@ Usage
  OPTIONS:
   -a,--product-area <ID>               assign the test result to product
                                        area
+     --access-token                    External token to exchange with
+                                       ALM Octane for authentication.
   -b,--backlog-item <ID>               assign the test result to backlog
                                        item
      --build-context-build-id <arg>    Build id for defining build context.
@@ -125,6 +127,15 @@ The password can be entered in the following ways:
 *  Password is entered directly to command line (--password option)
 *  Password is entered from file (--password-file option)
 *  Password is part of configuration file (password option)
+
+Access Token authentication
+---------------------------
+For authentication using an external token, use the --access-token option along with the username and password options.
+The tool exchanges the provided external token with ALM Octane to obtain an authentication token.
+
+When using access token authentication:
+* Provide the external token using --access-token option
+* Provide credentials that are defined in the sso.conf file in the oidc section using the username and password options
 
 Supported test result formats
 -----------------------------
