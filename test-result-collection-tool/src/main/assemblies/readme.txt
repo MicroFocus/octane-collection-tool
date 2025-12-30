@@ -73,7 +73,7 @@ Configuration
 -------------
 
 To push test results to ALM Octane server, this tool requires the server location
-(-s option), shared space ID (-d option) and workspace ID (-w option).
+(-s option), sharedspace ID (-d option) and workspace ID (-w option).
 This data can be passed as command-line arguments or in a configuration file.
 
 Example configuration file:
