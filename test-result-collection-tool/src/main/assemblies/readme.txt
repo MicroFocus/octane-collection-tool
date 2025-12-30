@@ -86,7 +86,7 @@ Example configuration file:
     workspace=1002
     # Server username
     user=test@hpe.com
-    # Server user password
+    # Server username password
     password=W3lcome1
     # Proxy host address
     proxyhost=proxy.ot.com
