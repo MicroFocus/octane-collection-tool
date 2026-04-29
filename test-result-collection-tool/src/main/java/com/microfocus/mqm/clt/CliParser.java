@@ -89,6 +89,7 @@ public class CliParser {
 
         options.addOption(Option.builder("t").longOpt("tag").desc("assign environment tag to test runs").hasArg().argName("TYPE:VALUE").build());
         options.addOption(Option.builder().longOpt("access-token").desc("IDP access token for authentication").hasArg().argName("PASSWORD").build());
+        options.addOption(Option.builder().longOpt("bearer-token").desc("Bearer token for direct authentication (no login required)").hasArg().argName("TOKEN").build());
         options.addOption(Option.builder("f").longOpt("field").desc("assign field tag to test result, relevant for the following fields : Testing_Tool_Type, Framework, Test_Level, Testing_Tool_Type").hasArg().argName("TYPE:VALUE").build());
 
         options.addOption(Option.builder("r").longOpt("release").desc("assign release to test result").hasArg().argName("ID").type(Number.class).build());
@@ -110,7 +111,7 @@ public class CliParser {
 
         argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status", "program",
                 "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id",
-                "build-context-server-id","build-context-build-id","build-context-job-id"));
+                "build-context-server-id","build-context-build-id","build-context-job-id", "bearer-token"));
         argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default",
                 "build-context-server-id","build-context-build-id","build-context-job-id"));
         argsForBuildContext.addAll(Arrays.asList("build-context-server-id","build-context-build-id","build-context-job-id"));
@@ -199,7 +200,7 @@ public class CliParser {
                         System.out.println("Can not read the password file: " + cmd.getOptionValue("password-file"));
                         System.exit(ReturnCode.FAILURE.getReturnCode());
                     }
-                } else if (settings.getPassword() == null) {//password was not  added in configuration file
+                } else if (settings.getPassword() == null && !cmd.hasOption("bearer-token") && !settings.getBearerToken().isPresent()) {//password was not  added in configuration file
                     System.out.println("Please enter your password if it's required and hit enter: ");
                     settings.setPassword(new String(System.console().readPassword()).getBytes(StandardCharsets.UTF_8));
                 }
@@ -297,12 +298,16 @@ public class CliParser {
                 settings.setBuildContextJobId(cmd.getOptionValue("build-context-job-id"));
             }
 
-            if (!areSettingsValid(settings)) {
-                System.exit(ReturnCode.FAILURE.getReturnCode());
-            }
-
             if(cmd.hasOption(Settings.PROP_ACCESS_TOKEN)){
                 settings.setAccessToken(cmd.getOptionValue(Settings.PROP_ACCESS_TOKEN).getBytes(StandardCharsets.UTF_8));
+            }
+
+            if (cmd.hasOption(Settings.PROP_BEARER_TOKEN)) {
+                settings.setBearerToken(cmd.getOptionValue(Settings.PROP_BEARER_TOKEN).getBytes(StandardCharsets.UTF_8));
+            }
+
+            if (!areSettingsValid(settings)) {
+                System.exit(ReturnCode.FAILURE.getReturnCode());
             }
 
         } catch (ParseException e) {
@@ -463,6 +468,11 @@ public class CliParser {
                 return false;
             }
 
+            if (!isAuthenticationConfigured(settings)) {
+                System.out.println("Authentication not configured. Provide one of: (1) user + password, (2) user + password + access-token, or (3) bearer-token");
+                return false;
+            }
+
             if (settings.getProxyHost() != null && settings.getProxyPort() == null) {
                 System.out.println("Proxy port was not specified for proxy host: " + settings.getProxyHost());
                 return false;
@@ -483,6 +493,27 @@ public class CliParser {
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean isAuthenticationConfigured(Settings settings) {
+        // Bearer token is sufficient on its own
+        if (settings.getBearerToken().isPresent()) {
+            return true;
+        }
+
+        // Otherwise, user credentials are required
+        if (settings.getUser() == null || settings.getUser().isEmpty()) {
+            System.out.println("Mandatory setting 'user' was not specified in the CLI arguments or configuration file");
+            return false;
+        }
+
+        // Password is required for credential-based auth
+        if (settings.getPassword() == null || settings.getPassword().length == 0) {
+            System.out.println("Mandatory setting 'password' was not specified in the CLI arguments or configuration file");
+            return false;
+        }
+
         return true;
     }
 

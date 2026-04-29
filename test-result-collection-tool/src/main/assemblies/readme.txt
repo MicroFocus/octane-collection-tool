@@ -21,6 +21,10 @@ Usage
                                        area
      --access-token                    External token to exchange with
                                        ALM Octane for authentication.
+     --bearer-token <TOKEN>            Bearer token for direct
+                                       authentication (no login required).
+                                       When provided, --user and --password
+                                       are not needed.
   -b,--backlog-item <ID>               assign the test result to backlog
                                        item
      --build-context-build-id <arg>    Build id for defining build context.
@@ -84,10 +88,12 @@ Example configuration file:
     sharedspace=1001
     # Server workspace ID
     workspace=1002
-    # Server username
+    # Server username (not required when using bearer-token)
     user=test@hpe.com
-    # Server username password
+    # Server username password (not required when using bearer-token)
     password=W3lcome1
+    # Bearer token for direct authentication (alternative to user + password)
+    # bearer-token=eyJhbGci...
     # Proxy host address
     proxyhost=proxy.ot.com
     # Proxy port number
@@ -127,6 +133,20 @@ The password can be entered in the following ways:
 *  Password is entered directly to command line (--password option)
 *  Password is entered from file (--password-file option)
 *  Password is part of configuration file (password option)
+
+Bearer Token authentication
+---------------------------
+For direct authentication using a bearer token, use the --bearer-token option.
+The token is sent as an Authorization: Bearer <token> header on every request.
+No username or password is required when using this option.
+
+When using bearer token authentication:
+* Provide the bearer token using --bearer-token option (or set bearer-token in the configuration file)
+* --user and --password are optional and ignored
+
+The bearer token can be provided in the following ways:
+*  Directly on the command line: --bearer-token <TOKEN>
+*  In the configuration file:   bearer-token=<TOKEN>
 
 Access Token authentication
 ---------------------------
@@ -205,3 +225,21 @@ file, which is placed in the same directory as this tool. Result file appears in
 
     java -jar test-result-collection-tool.jar --build-context-server-id 5b9c0376-169a-4e43-a279-8d7ef2810df6
     --build-context-job-id myJobId --build-context-build-id 1 JUnitOne.xml JUnitTwo.xml
+
+5.  Authenticate using a bearer token instead of username and password.
+
+    java -jar test-result-collection-tool.jar -s "http://localhost:8080"
+        -d 1001 -w 1002 --bearer-token "eyJhbGci..." JUnit.xml
+
+6.  Run from a Harness CI pipeline using a bearer token and build context.
+    The --build-context-job-id follows the format:
+      stage|~~|<orgIdentifier>|~~|<projectIdentifier>|~~|<pipelineIdentifier>|~~|<stageIdentifier>
+
+    java -jar test-result-collection-tool.jar \
+        -s "https://octane.example.com" -d 1001 -w 1002 \
+        --bearer-token "$OCTANE_BEARER_TOKEN" \
+        --build-context-server-id "339a2ec4-28bd-4e85-bdcd-ae8862ee20e1" \
+        --build-context-job-id "stage|~~|myOrg|~~|myProject|~~|myPipeline|~~|myStage" \
+        --build-context-build-id "$PIPELINE_EXECUTION_ID" \
+        target/surefire-reports/TEST-*.xml
+
