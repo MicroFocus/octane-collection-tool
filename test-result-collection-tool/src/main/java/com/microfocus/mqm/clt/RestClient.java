@@ -34,6 +34,7 @@ package com.microfocus.mqm.clt;
 
 import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.authentication.AuthenticationMethod;
+import com.microfocus.mqm.clt.authentication.BearerTokenAuthenticationMethodImpl;
 import com.microfocus.mqm.clt.authentication.JSONAuthenticationMethodImpl;
 import com.microfocus.mqm.clt.authentication.TokenExchangeAuthenticationMethodImpl;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
@@ -125,7 +126,10 @@ public class RestClient {
                 .setSocketTimeout(DEFAULT_SO_TIMEOUT)
                 .setConnectTimeout(DEFAULT_CONNECTION_TIMEOUT);
 
-        if(settings.getAccessToken().isEmpty() || settings.getAccessToken().get().length ==0 ){
+        if (settings.getBearerToken().isPresent()) {
+            this.authenticationMethod = new BearerTokenAuthenticationMethodImpl();
+            this.isLoggedIn = true;
+        } else if (settings.getAccessToken().isEmpty() || settings.getAccessToken().get().length == 0) {
             this.authenticationMethod = new JSONAuthenticationMethodImpl(cookieStore);
         } else {
             this.authenticationMethod = new TokenExchangeAuthenticationMethodImpl();
@@ -293,6 +297,17 @@ public class RestClient {
     }
 
     protected CloseableHttpResponse execute(HttpUriRequest request) throws IOException {
+        if (authenticationMethod.isPreAuthenticated()) {
+            authenticationMethod.addAuthorizationHeader(request, settings);
+            addClientTypeHeader(request);
+            CloseableHttpResponse response = httpClient.execute(request);
+            if (isLoginNecessary(response)) {
+                throw new RuntimeException(
+                        "Bearer token authentication failed. The token may be invalid or expired.");
+            }
+            return response;
+        }
+
         if (!isLoggedIn) {
             login();
         }
@@ -339,6 +354,9 @@ public class RestClient {
     }
 
     protected synchronized void logout() throws IOException {
+        if (authenticationMethod.isPreAuthenticated()) {
+            return;
+        }
         if (isLoggedIn) {
             HttpPost post = new HttpPost(createBaseUri(URI_LOGOUT));
             addClientTypeHeader(post);

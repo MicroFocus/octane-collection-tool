@@ -255,6 +255,18 @@ public class CliParserTest {
 
         settings.setWorkspace(1002);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertFalse(result); // no auth configured
+
+        // bearer token alone is sufficient
+        settings.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertTrue(result);
+
+        // user + password is also sufficient
+        settings.setBearerToken(null);
+        settings.setUser("admin");
+        settings.setPassword("password".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertTrue(result);
     }
 

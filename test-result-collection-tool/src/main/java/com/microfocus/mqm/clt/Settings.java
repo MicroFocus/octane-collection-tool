@@ -56,6 +56,7 @@ public class Settings {
     private static final String PROP_PROXY_PORT = "proxyport";
     private static final String PROP_PROXY_USER = "proxyuser";
     public static final String PROP_ACCESS_TOKEN = "access-token";
+    public static final String PROP_BEARER_TOKEN = "bearer-token";
 
     private String server;
     private Integer sharedspace;
@@ -96,6 +97,7 @@ public class Settings {
     private List<String> inputXmlFileNames;
 
     private byte[] accessToken;
+    private byte[] bearerToken;
 
     private DefaultConfigFilenameProvider defaultConfigFilenameProvider = new ImplDefaultConfigFilenameProvider();
 
@@ -116,6 +118,26 @@ public class Settings {
                 this.accessToken[i] = '\0';
             }
             this.accessToken = null;
+        }
+    }
+
+    public Optional<byte[]> getBearerToken() {
+        return (bearerToken == null || bearerToken.length == 0) ? Optional.empty() : Optional.of(bearerToken);
+    }
+
+    public void setBearerToken(byte[] bearerToken) {
+        if (this.bearerToken != null) {
+            clearBearerToken();
+        }
+        this.bearerToken = bearerToken;
+    }
+
+    private void clearBearerToken() {
+        if (this.bearerToken != null) {
+            for (int i = 0; i < this.bearerToken.length; i++) {
+                this.bearerToken[i] = '\0';
+            }
+            this.bearerToken = null;
         }
     }
 
@@ -146,6 +168,8 @@ public class Settings {
 
         byte[] accessToken = properties.getProperty(PROP_ACCESS_TOKEN) != null ? properties.getProperty(PROP_ACCESS_TOKEN).getBytes(StandardCharsets.UTF_8) : null;
         setAccessToken(accessToken);
+        byte[] bearerToken = properties.getProperty(PROP_BEARER_TOKEN) != null ? properties.getProperty(PROP_BEARER_TOKEN).getBytes(StandardCharsets.UTF_8) : null;
+        setBearerToken(bearerToken);
     }
 
     public String getServer() {
@@ -435,5 +459,6 @@ public class Settings {
             Arrays.fill(password, (byte) 0);  // overwrite in place
         }
         clearAccessToken();
+        clearBearerToken();
     }
 }
