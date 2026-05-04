@@ -230,16 +230,3 @@ file, which is placed in the same directory as this tool. Result file appears in
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080"
         -d 1001 -w 1002 --bearer-token "eyJhbGci..." JUnit.xml
-
-6.  Run from a Harness CI pipeline using a bearer token and build context.
-    The --build-context-job-id follows the format:
-      stage|~~|<orgIdentifier>|~~|<projectIdentifier>|~~|<pipelineIdentifier>|~~|<stageIdentifier>
-
-    java -jar test-result-collection-tool.jar \
-        -s "https://octane.example.com" -d 1001 -w 1002 \
-        --bearer-token "$OCTANE_BEARER_TOKEN" \
-        --build-context-server-id "339a2ec4-28bd-4e85-bdcd-ae8862ee20e1" \
-        --build-context-job-id "stage|~~|myOrg|~~|myProject|~~|myPipeline|~~|myStage" \
-        --build-context-build-id "$PIPELINE_EXECUTION_ID" \
-        target/surefire-reports/TEST-*.xml
-
