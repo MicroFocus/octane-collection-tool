@@ -50,6 +50,9 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
@@ -67,12 +70,16 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.apache.http.entity.FileEntity;
 
 import javax.net.ssl.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -95,7 +102,19 @@ public class RestClient {
     private static final String URI_TEST_RESULT_PUSH = "test-results?skip-errors={0}";
     private static final String URI_TEST_RESULT_STATUS = "test-results/{0}";
 
+    /**
+     * Coverage push endpoint – shared-space level (no workspace segment).
+     * Full path: {@code api/shared_spaces/{ss}/analytics/ci/coverage}
+     */
+    private static final String URI_COVERAGE_PUSH = "api/shared_spaces/{0}/analytics/ci/coverage";
+
     private static final String URI_PARAM_ENCODING = "UTF-8";
+
+    // Coverage endpoint query parameter names
+    private static final String COVERAGE_PARAM_CI_SERVER_IDENTITY = "ci-server-identity";
+    private static final String COVERAGE_PARAM_CI_JOB_ID          = "ci-job-id";
+    private static final String COVERAGE_PARAM_CI_BUILD_ID        = "ci-build-id";
+    private static final String COVERAGE_PARAM_FILE_TYPE          = "file-type";
 
     public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
@@ -293,6 +312,64 @@ public class RestClient {
             throw new RuntimeException("Cannot obtain status.", e);
         } finally {
             HttpClientUtils.closeQuietly(response);
+        }
+    }
+
+    /**
+     * Pushes a single coverage report file to the Octane {@code /analytics/ci/coverage} endpoint
+     * using an HTTP PUT request.
+     *
+     * <p>The endpoint is <em>shared-space</em> scoped:
+     * {@code {server}/api/shared_spaces/{sharedSpaceId}/analytics/ci/coverage}</p>
+     *
+     * @param coverageFile the coverage report file (JaCoCo XML, Sonar, or LCOV)
+     * @param reportType the coverage format; one of {@code JACOCOXML}, {@code SONAR_REPORT}, {@code LCOV}
+     * @throws IOException on network errors
+     * @throws RuntimeException if the server returns a non-2xx status code
+     */
+    public void putCoverageReport(File coverageFile, String reportType) throws IOException {
+        URI uri = createSharedSpaceApiCoverageUri(reportType);
+        HttpPut request = new HttpPut(uri);
+        request.setEntity(new FileEntity(coverageFile, ContentType.APPLICATION_OCTET_STREAM));
+
+        CloseableHttpResponse response = null;
+        try {
+            response = execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_ACCEPTED && statusCode != HttpStatus.SC_NO_CONTENT) {
+                String body = "";
+                if (response.getEntity() != null) {
+                    body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                }
+                throw new RuntimeException("Coverage report push failed with status code (" + statusCode + "): " + body);
+            }
+        } finally {
+            HttpClientUtils.closeQuietly(response);
+        }
+    }
+
+    /**
+     * Builds the URI for the coverage push endpoint, including build-context query parameters.
+     */
+    private URI createSharedSpaceApiCoverageUri(String reportType) {
+        String baseUriStr = createBaseUri(URI_COVERAGE_PUSH, settings.getSharedspace()).toString();
+        try {
+            URIBuilder builder = new URIBuilder(baseUriStr);
+            if (settings.getBuildContextServerId() != null) {
+                builder.addParameter(COVERAGE_PARAM_CI_SERVER_IDENTITY, settings.getBuildContextServerId());
+            }
+            if (settings.getBuildContextJobId() != null) {
+                builder.addParameter(COVERAGE_PARAM_CI_JOB_ID, settings.getBuildContextJobId());
+            }
+            if (settings.getBuildContextBuildId() != null) {
+                builder.addParameter(COVERAGE_PARAM_CI_BUILD_ID, settings.getBuildContextBuildId());
+            }
+            if (reportType != null) {
+                builder.addParameter(COVERAGE_PARAM_FILE_TYPE, reportType);
+            }
+            return builder.build();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to construct coverage endpoint URI: " + e.getMessage(), e);
         }
     }
 

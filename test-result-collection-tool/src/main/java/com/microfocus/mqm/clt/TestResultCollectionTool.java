@@ -59,17 +59,21 @@ public class TestResultCollectionTool {
     }
 
     public void collectAndPushTestResults() {
+        if (settings.getTestResultsFileNames() == null || settings.getTestResultsFileNames().isEmpty()) {
+            System.out.println("No test result files to push");
+            return;
+        }
         Map<File, String> publicApiXMLs = new LinkedHashMap<File, String>();
         if (settings.isInternal()) {
-            for (String fileName : settings.getInputXmlFileNames()) {
+            for (String fileName : settings.getTestResultsFileNames()) {
                 publicApiXMLs.put(new File(fileName), fileName);
             }
         } else if (settings.getOutputFile() != null) {
-            processJunitReport(new File(settings.getInputXmlFileNames().get(0)), new File(settings.getOutputFile()));
+            processJunitReport(new File(settings.getTestResultsFileNames().get(0)), new File(settings.getOutputFile()));
             System.out.println("JUnit report was saved to the output file");
             System.exit(ReturnCode.SUCCESS.getReturnCode());
         } else {
-            for (String fileName : settings.getInputXmlFileNames()) {
+            for (String fileName : settings.getTestResultsFileNames()) {
                 File publicApiTempXML = null;
                 try {
                     publicApiTempXML = File.createTempFile("testResult.xml", null);
@@ -127,7 +131,6 @@ public class TestResultCollectionTool {
         if (client != null) {
             try {
                 client.release();
-                settings.cleanSetting();
             } catch (IOException e) {
                 System.out.println("Unable to release client session: " + e.getMessage());
                 System.exit(ReturnCode.FAILURE.getReturnCode());

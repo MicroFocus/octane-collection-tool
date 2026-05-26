@@ -94,7 +94,9 @@ public class Settings {
     private String buildContextJobId;
     private String buildContextBuildId;
 
-    private List<String> inputXmlFileNames;
+    private List<String> testResultsFileNames;
+    private List<String> coverageReportFileNames;
+    private String coverageReportType;
 
     private byte[] accessToken;
     private byte[] bearerToken;
@@ -374,12 +376,28 @@ public class Settings {
         this.started = started;
     }
 
-    public List<String> getInputXmlFileNames() {
-        return inputXmlFileNames;
+    public List<String> getTestResultsFileNames() {
+        return testResultsFileNames;
     }
 
-    public void setInputXmlFileNames(List<String> inputXmlFileNames) {
-        this.inputXmlFileNames = inputXmlFileNames;
+    public void setTestResultsFileNames(List<String> testResultsFileNames) {
+        this.testResultsFileNames = testResultsFileNames;
+    }
+
+    public List<String> getCoverageReportFileNames() {
+        return coverageReportFileNames;
+    }
+
+    public void setCoverageReportFileNames(List<String> coverageReportFileNames) {
+        this.coverageReportFileNames = coverageReportFileNames;
+    }
+
+    public String getCoverageReportType() {
+        return coverageReportType;
+    }
+
+    public void setCoverageReportType(String coverageReportType) {
+        this.coverageReportType = coverageReportType;
     }
 
     /**

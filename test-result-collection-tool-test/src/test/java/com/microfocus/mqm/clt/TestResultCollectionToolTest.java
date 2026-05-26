@@ -100,7 +100,7 @@ public class TestResultCollectionToolTest {
         List<String> fileNames = new LinkedList<String>();
         fileNames.add(junit1.getPath());
         fileNames.add(junit2.getPath());
-        testClientSettings.setInputXmlFileNames(fileNames);
+        testClientSettings.setTestResultsFileNames(fileNames);
         testClientSettings.setRelease(release.getId().intValue());
         testClientSettings.setTags(tags);
         testClientSettings.setCheckResult(true);
@@ -139,7 +139,7 @@ public class TestResultCollectionToolTest {
         List<String> fileNames = new LinkedList<String>();
         fileNames.add(junit1.getPath());
         fileNames.add(junit2.getPath());
-        testClientSettings.setInputXmlFileNames(fileNames);
+        testClientSettings.setTestResultsFileNames(fileNames);
         testClientSettings.setInternal(true);
         TestResultCollectionTool testResultCollectionTool = new TestResultCollectionTool(testClientSettings);
         testResultCollectionTool.collectAndPushTestResults();

@@ -35,7 +35,7 @@ package com.microfocus.mqm.clt;
 public class ConnectionProperties {
 
 	public static String getLocation() {
-		return getStringValue("mqm.location", "http://localhost:8080");
+		return getStringValue("mqm.location", "http://localhost:8080/dev");
 	}
 
 	public static int getSharedSpaceId() {
