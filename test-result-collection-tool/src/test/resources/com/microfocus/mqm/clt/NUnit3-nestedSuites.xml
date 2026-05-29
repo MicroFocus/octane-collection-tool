@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NUnit 3 sample with nested test-suite hierarchy to verify that
+  test-case elements are collected regardless of nesting depth.
+-->
+<test-run id="2" name="NestedTests" fullname="NestedTests" testcasecount="2"
+          result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0"
+          duration="0.010000">
+    <test-suite type="Assembly" id="2-1" name="NestedTests.dll" fullname="NestedTests.dll">
+        <test-suite type="Namespace" id="2-2" name="com" fullname="com">
+            <test-suite type="Namespace" id="2-3" name="example" fullname="com.example">
+                <test-suite type="TestFixture" id="2-4" name="DeepFixture"
+                            fullname="com.example.DeepFixture"
+                            classname="com.example.DeepFixture"
+                            result="Passed" duration="0.010000">
+
+                    <test-case id="2-5" name="FirstTest"
+                               fullname="com.example.DeepFixture.FirstTest"
+                               classname="com.example.DeepFixture"
+                               result="Passed" duration="0.005"/>
+
+                    <test-case id="2-6" name="SecondTest"
+                               fullname="com.example.DeepFixture.SecondTest"
+                               classname="com.example.DeepFixture"
+                               result="Passed" duration="0.005"/>
+
+                </test-suite>
+            </test-suite>
+        </test-suite>
+    </test-suite>
+</test-run>
+

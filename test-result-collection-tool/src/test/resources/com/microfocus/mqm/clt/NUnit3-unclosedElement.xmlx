@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Deliberately malformed XML (unclosed element) to test error handling.
+  Renamed .xmlx so it is not accidentally picked up as a real resource.
+-->
+<test-run id="3" name="Broken">
+    <test-suite>
+        <test-case name="BrokenTest" classname="com.example.Broken" result="Passed" duration="0.001">
+

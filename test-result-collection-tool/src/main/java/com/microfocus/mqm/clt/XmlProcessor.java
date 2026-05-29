@@ -34,6 +34,7 @@ package com.microfocus.mqm.clt;
 
 import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.xml.JunitXmlIterator;
+import com.microfocus.mqm.clt.xml.NunitXmlIterator;
 import com.microfocus.mqm.clt.xml.TestResultXmlWriter;
 
 import javax.xml.stream.XMLStreamException;
@@ -51,7 +52,7 @@ public class XmlProcessor {
             System.exit(ReturnCode.FAILURE.getReturnCode());
         }
 
-        List<TestResult> testResults = new LinkedList<TestResult>();
+        List<TestResult> testResults = new LinkedList<>();
         try {
             JunitXmlIterator iterator = new JunitXmlIterator(junitTestReport, started);
             while (iterator.hasNext()) {
@@ -73,6 +74,40 @@ public class XmlProcessor {
 
         if (testResults.isEmpty()) {
             System.out.println("No valid test results to push in JUnit XML file '" + junitTestReport.getAbsolutePath() + "'");
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        }
+        return testResults;
+    }
+
+    public List<TestResult> processNunitTestReport(File nunitTestReport, Long started) {
+        if (nunitTestReport == null || !nunitTestReport.canRead()) {
+            String filePathInfo = (nunitTestReport == null) ? "" : ": " + nunitTestReport.getAbsolutePath();
+            System.out.println("Can not read the NUnit XML file" + filePathInfo);
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        }
+
+        List<TestResult> testResults = new LinkedList<>();
+        try {
+            NunitXmlIterator iterator = new NunitXmlIterator(nunitTestReport, started);
+            while (iterator.hasNext()) {
+                testResults.add(iterator.next());
+            }
+        } catch (IOException e) {
+            System.out.println("Unable to process NUnit XML file '" + nunitTestReport.getAbsolutePath() + "': " + e.getMessage());
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        } catch (XMLStreamException e) {
+            System.out.println("Unable to process NUnit XML file '" + nunitTestReport.getAbsolutePath() + "', XML stream exception has occurred: " + e.getMessage());
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        } catch (InterruptedException e) {
+            System.out.println("Unable to process NUnit XML file '" + nunitTestReport.getAbsolutePath() + "', thread was interrupted: " + e.getMessage());
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        } catch (RuntimeException e) {
+            System.out.println("Unable to process NUnit XML file '" + nunitTestReport.getAbsolutePath() + "', XSD validation was not successful: " + e.getMessage());
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+        }
+
+        if (testResults.isEmpty()) {
+            System.out.println("No valid test results to push in NUnit XML file '" + nunitTestReport.getAbsolutePath() + "'");
             System.exit(ReturnCode.FAILURE.getReturnCode());
         }
         return testResults;

@@ -35,6 +35,7 @@ package com.microfocus.mqm.clt;
 import com.microfocus.mqm.clt.Exception.ValidationException;
 import com.microfocus.mqm.clt.tests.TestResult;
 import com.microfocus.mqm.clt.tests.TestResultPushStatus;
+import com.microfocus.mqm.clt.xml.XmlFormatDetector;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
@@ -69,8 +70,8 @@ public class TestResultCollectionTool {
                 publicApiXMLs.put(new File(fileName), fileName);
             }
         } else if (settings.getOutputFile() != null) {
-            processJunitReport(new File(settings.getTestResultsFileNames().get(0)), new File(settings.getOutputFile()));
-            System.out.println("JUnit report was saved to the output file");
+            processTestReport(new File(settings.getTestResultsFileNames().get(0)), new File(settings.getOutputFile()));
+            System.out.println("Test report was saved to the output file");
             System.exit(ReturnCode.SUCCESS.getReturnCode());
         } else {
             for (String fileName : settings.getTestResultsFileNames()) {
@@ -82,7 +83,7 @@ public class TestResultCollectionTool {
                     System.out.println("Can not create temp file for test result");
                     System.exit(ReturnCode.FAILURE.getReturnCode());
                 }
-                processJunitReport(new File(fileName), publicApiTempXML);
+                processTestReport(new File(fileName), publicApiTempXML);
                 publicApiXMLs.put(publicApiTempXML, fileName);
             }
         }
@@ -161,10 +162,33 @@ public class TestResultCollectionTool {
                 + (StringUtils.isNotEmpty(publishResult.getErrorMessage()) ? ", error message is '" + publishResult.getErrorMessage() + "'" : ""));
     }
 
-    private void processJunitReport(File junitReport, File outputFile) {
+    private void processTestReport(File inputFile, File outputFile) {
+        XmlFormatDetector.XmlTestResultFormat format;
+        try {
+            format = XmlFormatDetector.detect(inputFile);
+        } catch (Exception e) {
+            System.out.println("Unable to detect test result format of file '" + inputFile.getAbsolutePath() + "': " + e.getMessage());
+            System.exit(ReturnCode.FAILURE.getReturnCode());
+            return;
+        }
+
         XmlProcessor xmlProcessor = new XmlProcessor();
-        List<TestResult> testResults = new LinkedList<TestResult>();
-        testResults.addAll(xmlProcessor.processJunitTestReport(junitReport, settings.getStarted()));
+        List<TestResult> testResults = new LinkedList<>();
+
+        switch (format) {
+            case JUNIT:
+                testResults.addAll(xmlProcessor.processJunitTestReport(inputFile, settings.getStarted()));
+                break;
+            case NUNIT:
+                testResults.addAll(xmlProcessor.processNunitTestReport(inputFile, settings.getStarted()));
+                break;
+            default:
+                System.out.println("Unsupported test result XML format in file '" + inputFile.getAbsolutePath()
+                        + "'. Supported formats: JUnit (root element <testsuite>/<testsuites>), NUnit 3 (root element <test-run>).");
+                System.exit(ReturnCode.FAILURE.getReturnCode());
+                return;
+        }
+
         xmlProcessor.writeTestResults(testResults, settings, outputFile);
     }
 
