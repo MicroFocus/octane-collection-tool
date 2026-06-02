@@ -8,13 +8,14 @@ This software was acquired by Micro Focus on September 1, 2017, and is now offer
 Any reference to the HP and Hewlett Packard Enterprise/HPE marks is historical in nature, and the HP and Hewlett Packard Enterprise/HPE marks are the property of their respective owners.
 ------------------------------------------------------------------------------------------------------------------------
 
-The Test Result Collection Tool is a command line tool for pushing test result XML files to the ALM Octane test result API.
+The Test Result Collection Tool is a command line tool for pushing test result XML files and code coverage reports to the ALM Octane APIs.
 Supported XML formats are the ALM Octane / ValueEdge format and JUnit format.
+Supported code coverage formats are JaCoCo XML, LCOV, and SonarQube reports.
 
 Usage
 -----
 
- java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...
+ java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]... [--coverage-reports PATTERN --coverage-report-type TYPE]
 
  OPTIONS:
   -a,--product-area <ID>               assign the test result to product
@@ -31,11 +32,21 @@ Usage
      --build-context-job-id <arg>      Job id for defining build context.
      --build-context-server-id <arg>   Server instance id for defining
                                        build context.
-  -c,--config-file <FILE>              configuration file location
-     --check-result                    check test result status after push
-     --check-result-timeout <SEC>      timeout for test result push status
-                                       retrieval
-  -d,--shared-space <ID>               server shared space to push to
+   -c,--config-file <FILE>              configuration file location
+      --check-result                    check test result status after push
+      --check-result-timeout <SEC>      timeout for test result push status
+                                        retrieval
+      --coverage-reports <PATTERN>      Glob pattern for code coverage report
+                                        files (e.g.
+                                        target/site/jacoco/jacoco.xml). Can be
+                                        specified multiple times. Requires
+                                        --coverage-report-type and build-context
+                                        parameters.
+      --coverage-report-type <TYPE>     Type of coverage report to push. Valid
+                                        values: JACOCOXML, LCOV, SONAR_REPORT.
+                                        Required when --coverage-reports is
+                                        specified.
+   -d,--shared-space <ID>               server shared space to push to
   -e,--skip-errors                     skip errors on the server side
   -f,--field <TYPE:VALUE>              assign field tag to test result,
                                        relevant for the following fields:
@@ -157,6 +168,39 @@ When using access token authentication:
 * Provide the external token using --access-token option
 * Provide credentials that are defined in the sso.conf file in the oidc section using the username and password options
 
+Code Coverage Support
+---------------------
+
+This tool can push code coverage reports to ALM Octane in addition to test results.
+To push code coverage reports, use the following options:
+
+* --coverage-reports <PATTERN>      Glob pattern to match coverage report files
+                                     (e.g., target/site/jacoco/jacoco.xml)
+                                     Can be specified multiple times to include
+                                     multiple coverage reports.
+
+* --coverage-report-type <TYPE>     Type of coverage report being pushed.
+                                     Valid values are:
+                                     - JACOCOXML (for JaCoCo coverage reports)
+                                     - LCOV (for LCOV coverage reports)
+                                     - SONAR_REPORT (for SonarQube coverage reports)
+
+When pushing code coverage reports, the following build context parameters are required:
+* --build-context-server-id <ID>    Server instance identifier
+* --build-context-job-id <ID>       Job identifier
+* --build-context-build-id <ID>     Build identifier
+
+Example configuration file with coverage support:
+
+    # ... other configuration options ...
+    build_context_server_id=36591a9c-8b02-470d-a716-8ad8211de482
+    build_context_job_id=myJobId
+    build_context_build_id=myBuildId
+
+Note: Code coverage reports are pushed independently from test results and can be
+used in combination with positional file arguments to push both test results and
+coverage data in a single command invocation.
+
 Supported test result formats
 -----------------------------
 
@@ -230,3 +274,25 @@ file, which is placed in the same directory as this tool. Result file appears in
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080"
         -d 1001 -w 1002 --bearer-token "eyJhbGci..." JUnit.xml
+
+6.  Push both test results and code coverage reports with build context.
+
+    java -jar test-result-collection-tool.jar -s "http://localhost:8080"
+        -d 1001 -w 1002 --bearer-token "eyJhbGci..."
+        --coverage-reports "target/site/jacoco/jacoco.xml"
+        --coverage-report-type JACOCOXML
+        --build-context-server-id "36591a9c-8b02-470d-a716-8ad8211de482"
+        --build-context-job-id "myJobId"
+        --build-context-build-id "123"
+        JUnitOne.xml
+
+7.  Push code coverage reports only using glob patterns to match multiple files.
+
+    java -jar test-result-collection-tool.jar -s "http://localhost:8080"
+        -d 1001 -w 1002 -u "test@example.com" -p "password"
+        --coverage-reports "build/coverage/**.xml"
+        --coverage-report-type JACOCOXML
+        --build-context-server-id "server-id"
+        --build-context-job-id "job-id"
+        --build-context-build-id "build-123"
+
