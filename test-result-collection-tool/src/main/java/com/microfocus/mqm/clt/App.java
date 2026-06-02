@@ -37,11 +37,27 @@ public class App {
     public static void main(String[] args) {
         CliParser cliParser = new CliParser();
         Settings settings = cliParser.parse(args);
-        collectAndPushTestResults(settings);
+
+        try {
+            if (settings.getTestResultsFileNames() != null && !settings.getTestResultsFileNames().isEmpty()) {
+                collectAndPushTestResults(settings);
+            }
+
+            if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
+                collectAndPushCoverageReports(settings);
+            }
+        } finally {
+            settings.cleanSetting();
+        }
     }
 
     public static void collectAndPushTestResults(Settings settings) {
         TestResultCollectionTool testResultCollectionTool = new TestResultCollectionTool(settings);
         testResultCollectionTool.collectAndPushTestResults();
+    }
+
+    public static void collectAndPushCoverageReports(Settings settings) {
+        CoverageCollectionTool coverageCollectionTool = new CoverageCollectionTool(settings);
+        coverageCollectionTool.collectAndPushCoverageReports();
     }
 }

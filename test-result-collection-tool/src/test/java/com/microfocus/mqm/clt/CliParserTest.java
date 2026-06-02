@@ -126,10 +126,12 @@ public class CliParserTest {
         argsValidation.setAccessible(true);
         CommandLineParser parser = new DefaultParser();
 
+        // -i + -w + positional file: valid
         CommandLine cmdArgs = parser.parse(options, new String[]{ "-i", "-w", "1002", "publicApi.xml"});
         Boolean result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertTrue(result);
 
+        // -i + -b: invalid (backlog-item is restricted for internal mode)
         cmdArgs = parser.parse(options, new String[]{"-i", "-b", "1002", "publicApi.xml"});
         result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertFalse(result);
@@ -142,26 +144,26 @@ public class CliParserTest {
         argsValidation.setAccessible(true);
         CommandLineParser parser = new DefaultParser();
 
+        // Single release + positional file: valid
         CommandLine cmdArgs = parser.parse(options, new String[]{ "-r", "1", "test.xml"});
         Boolean result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertTrue(result);
 
+        // Duplicate -r: invalid
         cmdArgs = parser.parse(options, new String[]{"-r", "1", "-r", "2", "test.xml"});
         result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertFalse(result);
 
+        // No input at all: invalid
         cmdArgs = parser.parse(options, new String[]{});
         result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertFalse(result);
 
+        // --output-file with positional file: valid
         File outputFolder = temporaryFolder.newFolder();
         cmdArgs = parser.parse(options, new String[]{"--output-file",
-                outputFolder.getPath() + File.separator + "testResults.xml", "JUnit1.xml", "JUnit2.xml"});
-        result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
-        Assert.assertFalse(result);
-
-        cmdArgs = parser.parse(options, new String[]{"--output-file",
-                outputFolder.getPath() + File.separator + "testResults.xml", "JUnit.xml"});
+                outputFolder.getPath() + File.separator + "testResults.xml",
+                "JUnit.xml"});
         result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
         Assert.assertTrue(result);
     }
@@ -169,25 +171,59 @@ public class CliParserTest {
     @Test
     public void testArgs_inputFiles() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException, URISyntaxException, IOException {
         CliParser cliParser = new CliParser();
-        Method inputFilesValidation = cliParser.getClass().getDeclaredMethod("addInputFilesToSettings", CommandLine.class, Settings.class);
+        Method inputFilesValidation = cliParser.getClass().getDeclaredMethod("addTestResultsFilesToSettings", CommandLine.class, Settings.class);
         inputFilesValidation.setAccessible(true);
         CommandLineParser parser = new DefaultParser();
 
-        CommandLine cmdArgs = parser.parse(options, new String[]{"test.xml"});
+        // Non-existent positional file: failure
+        CommandLine cmdArgs = parser.parse(options, new String[]{"nonexistent_file_that_will_never_exist.xml"});
         Settings settings = new Settings();
         Boolean result = (Boolean) inputFilesValidation.invoke(cliParser, cmdArgs, settings);
         Assert.assertFalse(result);
-        Assert.assertNull(settings.getInputXmlFileNames());
+        Assert.assertNull(settings.getTestResultsFileNames());
 
-        cmdArgs = parser.parse(options, new String[]{getClass().getResource("JUnit-minimalAccepted.xml").toURI().getPath(),
+        // Two real positional files: success
+        cmdArgs = parser.parse(options, new String[]{
+                getClass().getResource("JUnit-minimalAccepted.xml").toURI().getPath(),
                 getClass().getResource("JUnit-missingTestName.xml").toURI().getPath()});
         result = (Boolean) inputFilesValidation.invoke(cliParser, cmdArgs, settings);
         Assert.assertTrue(result);
-        List<String> fileNames = settings.getInputXmlFileNames();
+        List<String> fileNames = settings.getTestResultsFileNames();
         Assert.assertNotNull(fileNames);
         Assert.assertEquals(2, fileNames.size());
         Assert.assertTrue(fileNames.get(0).contains("JUnit-minimalAccepted.xml"));
         Assert.assertTrue(fileNames.get(1).contains("JUnit-missingTestName.xml"));
+    }
+
+    @Test
+    public void testArgs_positionalFiles() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException, URISyntaxException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        Method inputFilesValidation = cliParser.getClass().getDeclaredMethod("addTestResultsFilesToSettings", CommandLine.class, Settings.class);
+        inputFilesValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // Positional args should pass areCmdArgsValid
+        String realFile = getClass().getResource("JUnit-minimalAccepted.xml").toURI().getPath();
+        CommandLine cmdArgs = parser.parse(options, new String[]{realFile});
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmdArgs);
+        Assert.assertTrue("Positional args should be accepted", result);
+
+        // Positional args should populate test results in settings
+        Settings settings = new Settings();
+        result = (Boolean) inputFilesValidation.invoke(cliParser, cmdArgs, settings);
+        Assert.assertTrue(result);
+        Assert.assertNotNull(settings.getTestResultsFileNames());
+        Assert.assertEquals(1, settings.getTestResultsFileNames().size());
+        Assert.assertTrue(settings.getTestResultsFileNames().get(0).contains("JUnit-minimalAccepted.xml"));
+
+        // Non-existent positional file should be skipped
+        settings = new Settings();
+        cmdArgs = parser.parse(options, new String[]{"nonexistent_file.xml"});
+        result = (Boolean) inputFilesValidation.invoke(cliParser, cmdArgs, settings);
+        Assert.assertFalse("Non-existent positional file should fail", result);
+        Assert.assertNull(settings.getTestResultsFileNames());
     }
 
     @Test
@@ -284,5 +320,150 @@ public class CliParserTest {
         Assert.assertEquals(Integer.valueOf(1001), settings.getSharedspace());
         Assert.assertEquals(Integer.valueOf(1002), settings.getWorkspace());
         Assert.assertEquals("admin", settings.getUser());
+    }
+
+    // -------------------------------------------------------------------------
+    // Coverage report option tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void testArgs_coverageReportType_validValues() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        for (String validType : CliParser.COVERAGE_REPORT_TYPES) {
+            CommandLine cmd = parser.parse(options, new String[]{
+                    "--coverage-reports", "dummy.xml",
+                    "--coverage-report-type", validType,
+                    "--build-context-server-id", "srv1",
+                    "--build-context-job-id", "job1",
+                    "--build-context-build-id", "build1"
+            });
+            Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+            Assert.assertTrue("Expected valid for coverage-report-type: " + validType, result);
+        }
+    }
+
+    @Test
+    public void testArgs_coverageReportType_invalidValue() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-reports", "dummy.xml",
+                "--coverage-report-type", "invalidType",
+                "--build-context-server-id", "srv1",
+                "--build-context-job-id", "job1",
+                "--build-context-build-id", "build1"
+        });
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertFalse("Expected invalid for unknown coverage-report-type", result);
+    }
+
+    @Test
+    public void testArgs_coverageReports_requiresType() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // --coverage-reports without --coverage-report-type should fail
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-reports", "dummy.xml",
+                "--build-context-server-id", "srv1",
+                "--build-context-job-id", "job1",
+                "--build-context-build-id", "build1"
+        });
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertFalse("Expected failure: --coverage-reports without --coverage-report-type", result);
+    }
+
+    @Test
+    public void testArgs_coverageReports_requiresBuildContext() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // --coverage-reports without build-context params should fail
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-reports", "dummy.xml",
+                "--coverage-report-type", "JACOCOXML"
+        });
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertFalse("Expected failure: --coverage-reports without build-context params", result);
+    }
+
+    @Test
+    public void testArgs_coverageReportType_requiresCoverageReports() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // --coverage-report-type without --coverage-reports should fail
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-report-type", "JACOCOXML",
+                "test.xml"
+        });
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertFalse("Expected failure: --coverage-report-type without --coverage-reports", result);
+    }
+
+    @Test
+    public void testArgs_noInput_fails() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // No positional args, no --coverage-reports -> should fail
+        CommandLine cmd = parser.parse(options, new String[]{});
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertFalse("Expected failure when no input is specified", result);
+    }
+
+    @Test
+    public void testArgs_coverageOnlyMode_valid() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method argsValidation = cliParser.getClass().getDeclaredMethod("areCmdArgsValid", CommandLine.class);
+        argsValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // --coverage-reports alone (no positional args) should be valid in areCmdArgsValid
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-reports", "target/site/jacoco/*.xml",
+                "--coverage-report-type", "JACOCOXML",
+                "--build-context-server-id", "srv1",
+                "--build-context-job-id", "job1",
+                "--build-context-build-id", "build1"
+        });
+        Boolean result = (Boolean) argsValidation.invoke(cliParser, cmd);
+        Assert.assertTrue("Expected valid for coverage-only mode", result);
+    }
+
+    @Test
+    public void testArgs_coverageOnlyMode_noTestResultsInSettings() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        CliParser cliParser = new CliParser();
+        Method inputFilesValidation = cliParser.getClass().getDeclaredMethod("addTestResultsFilesToSettings", CommandLine.class, Settings.class);
+        inputFilesValidation.setAccessible(true);
+        CommandLineParser parser = new DefaultParser();
+
+        // Coverage-only: no positional args -> inputXmlFileNames should remain null
+        CommandLine cmd = parser.parse(options, new String[]{
+                "--coverage-reports", "target/site/jacoco/*.xml",
+                "--coverage-report-type", "JACOCOXML",
+                "--build-context-server-id", "srv1",
+                "--build-context-job-id", "job1",
+                "--build-context-build-id", "build1"
+        });
+        Settings settings = new Settings();
+        Boolean result = (Boolean) inputFilesValidation.invoke(cliParser, cmd, settings);
+        Assert.assertTrue("Expected success for coverage-only mode (no test result files required)", result);
+        Assert.assertNull("inputXmlFileNames should be null in coverage-only mode", settings.getTestResultsFileNames());
     }
 }

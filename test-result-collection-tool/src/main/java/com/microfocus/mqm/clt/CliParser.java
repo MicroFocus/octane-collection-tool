@@ -46,10 +46,22 @@ import java.util.regex.Pattern;
 
 public class CliParser {
 
-    private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]...\n";
+    private static final String CMD_LINE_SYNTAX = "java -jar test-result-collection-tool.jar [OPTIONS]... FILE [FILE]... [--coverage-reports PATTERN --coverage-report-type TYPE]\n";
     private static final String HEADER = "Open Text ALM Octane Test Result Collection Tool";
     private static final String FOOTER = "";
     private static final String VERSION = "1.0.15";
+
+    private static final String COVERAGE_REPORTS_OPTION = "coverage-reports";
+    private static final String COVERAGE_REPORT_TYPE_OPTION = "coverage-report-type";
+
+    private static final String COVERAGE_REPORT_TYPE_JACOCOXML = "JACOCOXML";
+    private static final String COVERAGE_REPORT_TYPE_LCOV = "LCOV";
+    private static final String COVERAGE_REPORT_TYPE_SONAR_REPORT = "SONAR_REPORT";
+
+    static final List<String> COVERAGE_REPORT_TYPES = Arrays.asList(
+            COVERAGE_REPORT_TYPE_JACOCOXML,
+            COVERAGE_REPORT_TYPE_LCOV,
+            COVERAGE_REPORT_TYPE_SONAR_REPORT);
 
     private Options options = new Options();
     private LinkedList<String> argsWithSingleOccurrence = new LinkedList<String>();
@@ -107,11 +119,18 @@ public class CliParser {
         options.addOption(Option.builder().longOpt("build-context-build-id").desc("Build id for defining build context.").hasArg().build());
         options.addOption(Option.builder().longOpt("build-context-job-id").desc("Job id for defining build context.").hasArg().build());
 
-
+        options.addOption(Option.builder().longOpt("coverage-reports")
+                .desc("Glob pattern for code coverage report files (e.g. target/site/jacoco/jacoco.xml). " +
+                        "Can be specified multiple times. Requires --coverage-report-type and build-context params.")
+                .hasArgs().argName("PATTERN").build());
+        options.addOption(Option.builder().longOpt("coverage-report-type")
+                .desc("Type of coverage report to push. Valid values: " + COVERAGE_REPORT_TYPES + ". " +
+                        "Required when --coverage-reports is specified.")
+                .hasArg().argName("TYPE").build());
 
         argsWithSingleOccurrence.addAll(Arrays.asList("o", "c", "s", "d", "w", "u", "p", "password-file", "r", "release-default", "m", "started", "check-status", "program",
                 "check-status-timeout", "proxy-host", "proxy-port", "proxy-user", "proxy-password", "proxy-password-file", "suite", "suite-external-run-id",
-                "build-context-server-id","build-context-build-id","build-context-job-id", "bearer-token"));
+                "build-context-server-id","build-context-build-id","build-context-job-id", "bearer-token", "coverage-report-type"));
         argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default",
                 "build-context-server-id","build-context-build-id","build-context-job-id"));
         argsForBuildContext.addAll(Arrays.asList("build-context-server-id","build-context-build-id","build-context-job-id"));
@@ -138,7 +157,7 @@ public class CliParser {
                 System.exit(ReturnCode.FAILURE.getReturnCode());
             }
 
-            if (!addInputFilesToSettings(cmd, settings)) {
+            if (!addTestResultsFilesToSettings(cmd, settings)) {
                 printHelp();
                 System.exit(ReturnCode.FAILURE.getReturnCode());
             }
@@ -298,6 +317,12 @@ public class CliParser {
                 settings.setBuildContextJobId(cmd.getOptionValue("build-context-job-id"));
             }
 
+            if (cmd.hasOption(COVERAGE_REPORT_TYPE_OPTION)) {
+                settings.setCoverageReportType(cmd.getOptionValue(COVERAGE_REPORT_TYPE_OPTION));
+            }
+
+            addCodeCoverageFilesToSettingsIfNeeded(cmd, settings);
+
             if(cmd.hasOption(Settings.PROP_ACCESS_TOKEN)){
                 settings.setAccessToken(cmd.getOptionValue(Settings.PROP_ACCESS_TOKEN).getBytes(StandardCharsets.UTF_8));
             }
@@ -317,34 +342,59 @@ public class CliParser {
         return settings;
     }
 
-    private boolean addInputFilesToSettings(CommandLine cmd, Settings settings) {
-        List<String> argList = cmd.getArgList();
-        List<String> inputFiles = new LinkedList<String>();
-        for (String inputFile : argList) {
-            if (!new File(inputFile).isFile()) {
-                System.out.println("Path '" + inputFile + "' does not lead to a file");
-                continue;
+    private static void addCodeCoverageFilesToSettingsIfNeeded(CommandLine cmd, Settings settings) {
+        if (cmd.hasOption(COVERAGE_REPORTS_OPTION)) {
+            List<String> coverageFiles = new LinkedList<>();
+            for (String pattern : cmd.getOptionValues(COVERAGE_REPORTS_OPTION)) {
+                List<String> resolved = FileGlobUtils.resolveGlobPattern(pattern);
+                if (resolved.isEmpty()) {
+                    System.out.println("Warning: pattern '" + pattern + "' did not match any coverage report files");
+                }
+                coverageFiles.addAll(resolved);
             }
-            if (!new File(inputFile).canRead()) {
-                System.out.println("File '" + inputFile + "' is not readable");
-                continue;
+            if (coverageFiles.isEmpty()) {
+                System.out.println("No readable coverage report files found matching the specified --" + COVERAGE_REPORTS_OPTION + " patterns");
+                System.exit(ReturnCode.FAILURE.getReturnCode());
             }
-            inputFiles.add(inputFile);
+            settings.setCoverageReportFileNames(coverageFiles);
+        }
+    }
+
+    private boolean addTestResultsFilesToSettings(CommandLine cmd, Settings settings) {
+        List<String> inputFiles = new LinkedList<>();
+
+        if (!cmd.getArgList().isEmpty()) {
+            List<String> argList = cmd.getArgList();
+            for (String inputFile : argList) {
+                if (!new File(inputFile).isFile()) {
+                    System.out.println("Path '" + inputFile + "' does not lead to a file");
+                    continue;
+                }
+                if (!new File(inputFile).canRead()) {
+                    System.out.println("File '" + inputFile + "' is not readable");
+                    continue;
+                }
+                inputFiles.add(inputFile);
+            }
+            if (inputFiles.isEmpty()) {
+                System.out.println("No readable files with tests to push");
+                return false;
+            }
         }
 
-        if (inputFiles.isEmpty()) {
-            System.out.println("No readable files with tests to push");
-            return false;
+        if (!inputFiles.isEmpty()) {
+            settings.setTestResultsFileNames(inputFiles);
         }
-
-        settings.setInputXmlFileNames(inputFiles);
         return true;
     }
 
     private boolean areCmdArgsValid(CommandLine cmd) {
-        List<String> argList = cmd.getArgList();
-        if (argList.isEmpty()) {
-            System.out.println("At least one XML file must be specified as input for push");
+        // At least ONE input source must be specified:
+        // positional FILE args for test results, or --coverage-reports PATTERN
+        boolean hasTestResultInput = !cmd.getArgList().isEmpty();
+        boolean hasCoverageInput = cmd.hasOption(COVERAGE_REPORTS_OPTION);
+        if (!hasTestResultInput && !hasCoverageInput) {
+            System.out.println("At least one input must be specified: positional FILE arguments or --" + COVERAGE_REPORTS_OPTION + " PATTERN");
             return false;
         }
 
@@ -385,6 +435,32 @@ public class CliParser {
             }
         }
 
+        // --coverage-reports validation
+        if (cmd.hasOption(COVERAGE_REPORTS_OPTION)) {
+            if (!cmd.hasOption(COVERAGE_REPORT_TYPE_OPTION)) {
+                System.out.println("--" + COVERAGE_REPORT_TYPE_OPTION + " is required when --" + COVERAGE_REPORTS_OPTION + " is specified. Valid values: " + COVERAGE_REPORT_TYPES);
+                return false;
+            }
+            if (!buildContextDefined) {
+                System.out.println("Build context parameters (--build-context-server-id, --build-context-job-id, --build-context-build-id) "
+                        + "are required when pushing coverage reports");
+                return false;
+            }
+        }
+
+        // --coverage-report-type value must be one of the accepted enum values
+        String coverageType = cmd.getOptionValue(COVERAGE_REPORT_TYPE_OPTION);
+        if (coverageType != null && !COVERAGE_REPORT_TYPES.contains(coverageType)) {
+            System.out.println("Invalid --coverage-report-type: '" + coverageType + "'. Valid values: " + COVERAGE_REPORT_TYPES);
+            return false;
+        }
+
+        // --coverage-report-type without --coverage-reports is invalid
+        if (cmd.hasOption(COVERAGE_REPORT_TYPE_OPTION) && !cmd.hasOption(COVERAGE_REPORTS_OPTION)) {
+            System.out.println("--" + COVERAGE_REPORT_TYPE_OPTION + " requires --" + COVERAGE_REPORTS_OPTION + " to be specified");
+            return false;
+        }
+
         if (!isTagFormatValid(cmd, "t") || !isTagFormatValid(cmd, "f")) {
             return false;
         }
@@ -409,7 +485,7 @@ public class CliParser {
 
         String outputFilePath = cmd.getOptionValue("o");
         if (outputFilePath != null) {
-            if (argList.size() != 1) {
+            if (cmd.getArgList().size() != 1) {
                 System.out.println("Only single JUnit input file is allowed for output mode");
                 return false;
             }
@@ -491,6 +567,18 @@ public class CliParser {
             if (settings.getRelease() != null && settings.isDefaultRelease()) {
                 System.out.println("Default release cannot be assigned along with release ID assignment");
                 return false;
+            }
+
+            if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
+                if (settings.getCoverageReportType() == null || settings.getCoverageReportType().isEmpty()) {
+                    System.out.println("--coverage-report-type is required when coverage reports are specified. Valid values: " + COVERAGE_REPORT_TYPES);
+                    return false;
+                }
+                if (!settings.isBuildContextDefined()) {
+                    System.out.println("Build context parameters (--build-context-server-id, --build-context-job-id, --build-context-build-id) "
+                            + "are required when pushing coverage reports");
+                    return false;
+                }
             }
         }
         return true;
