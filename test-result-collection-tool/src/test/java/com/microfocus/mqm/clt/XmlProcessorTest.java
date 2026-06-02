@@ -56,6 +56,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class XmlProcessorTest {
@@ -119,6 +120,47 @@ public class XmlProcessorTest {
         });
         XmlProcessor xmlProcessor = new XmlProcessor();
         xmlProcessor.processJunitTestReport(new File("fileDoesNotExist.xml"), null);
+    }
+
+    @Test
+    public void testXmlProcessor_minimalAcceptedNunitFormat() throws URISyntaxException {
+        XmlProcessor xmlProcessor = new XmlProcessor();
+        List<TestResult> testResults = xmlProcessor.processNunitTestReport(new File(Objects.requireNonNull(getClass().getResource("NUnit3-allStatuses.xml")).toURI()), 1444291726L);
+        Assert.assertNotNull(testResults);
+        Assert.assertEquals(5, testResults.size());
+        assertTestResult(testResults.get(0), "com.example.tests", "SampleFixture", "PassingTest",        TestResultStatus.PASSED,  1, 1444291726L);
+        assertTestResult(testResults.get(1), "com.example.tests", "SampleFixture", "FailingTest",        TestResultStatus.FAILED,  2, 1444291726L);
+        assertTestResult(testResults.get(2), "com.example.tests", "SampleFixture", "SkippedTest",        TestResultStatus.SKIPPED, 0, 1444291726L);
+        assertTestResult(testResults.get(3), "com.example.tests", "SampleFixture", "InconclusiveTest",   TestResultStatus.SKIPPED, 3, 1444291726L);
+        assertTestResult(testResults.get(4), "com.example.tests", "SampleFixture", "AnotherPassingTest", TestResultStatus.PASSED,  4, 1444291726L);
+    }
+
+    @Test
+    public void testXmlProcessor_nunitFailureDetails() throws URISyntaxException {
+        XmlProcessor xmlProcessor = new XmlProcessor();
+        List<TestResult> testResults = xmlProcessor.processNunitTestReport(new File(Objects.requireNonNull(getClass().getResource("NUnit3-allStatuses.xml")).toURI()), 1444291726L);
+        TestResult failingTest = testResults.get(1);
+        Assert.assertNull(failingTest.getErrorType());  // NUnit 3 has no separate exception-type attribute
+        Assert.assertEquals("Expected 1 but was 2", failingTest.getErrorMsg().trim());
+        Assert.assertTrue(failingTest.getStackTraceStr().contains("SampleFixture.cs:line 25"));
+    }
+
+    @Test
+    public void testXmlProcessor_nunitUnclosedElement() throws URISyntaxException {
+        systemOutRule.enableLog();
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(() -> Assert.assertTrue(systemOutRule.getLog().contains("Unable to process NUnit XML file")));
+        XmlProcessor xmlProcessor = new XmlProcessor();
+        xmlProcessor.processNunitTestReport(new File(Objects.requireNonNull(getClass().getResource("NUnit3-unclosedElement.xmlx")).toURI()), null);
+    }
+
+    @Test
+    public void testXmlProcessor_nunitFileDoesNotExist() {
+        systemOutRule.enableLog();
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(() -> Assert.assertTrue(systemOutRule.getLog().contains("Can not read the NUnit XML file")));
+        XmlProcessor xmlProcessor = new XmlProcessor();
+        xmlProcessor.processNunitTestReport(new File("fileDoesNotExist.xml"), null);
     }
 
     @Test

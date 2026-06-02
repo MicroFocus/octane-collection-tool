@@ -486,7 +486,7 @@ public class CliParser {
         String outputFilePath = cmd.getOptionValue("o");
         if (outputFilePath != null) {
             if (cmd.getArgList().size() != 1) {
-                System.out.println("Only single JUnit input file is allowed for output mode");
+                System.out.println("Only single input file is allowed for output mode");
                 return false;
             }
             File outputFile = new File(outputFilePath);
