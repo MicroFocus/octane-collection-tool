@@ -73,8 +73,18 @@ public class XmlFormatDetector {
      */
     public static XmlTestResultFormat detect(File file) throws IOException, XMLStreamException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
+        // Disables DTDs (prevents DOCTYPE declaration)
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        // Disables external entity resolution
         factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        // Enables namespace awareness
+        factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+        // Prevents automatic expansion of entities
+        factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+        // Prevents combining adjacent text and CDATA
+        factory.setProperty(XMLInputFactory.IS_COALESCING, false);
+        // Disables validation, don't validate against external schema
+        factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
 
         try (FileInputStream fis = new FileInputStream(file)) {
             XMLStreamReader reader = factory.createXMLStreamReader(fis);
