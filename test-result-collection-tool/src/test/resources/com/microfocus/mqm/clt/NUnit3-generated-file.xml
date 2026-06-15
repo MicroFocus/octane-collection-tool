@@ -1,0 +1,27 @@
+<test-suite type="Assembly" name="TestApplication.Tests.dll" fullname="/tmp/harness-_L40PzRnQmu-nUUI7eYvUg/harness-nunit/src/TestApplication.Tests/bin/Release/net8.0/TestApplication.Tests.dll" total="3" passed="1" failed="1" inconclusive="0" skipped="1" result="Failed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.0496959">
+    <test-suite type="TestSuite" name="TestApplication" fullname="TestApplication" total="3" passed="1" failed="1" inconclusive="0" skipped="1" result="Failed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.0496959">
+        <test-suite type="TestSuite" name="Tests" fullname="TestApplication.Tests" total="3" passed="1" failed="1" inconclusive="0" skipped="1" result="Failed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.0496959">
+            <test-suite type="TestFixture" name="CalculatorTests" fullname="TestApplication.Tests.CalculatorTests" classname="TestApplication.Tests.CalculatorTests" total="3" passed="1" failed="1" inconclusive="0" skipped="1" result="Failed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.0496959">
+                <test-case name="FailingTest" fullname="TestApplication.Tests.CalculatorTests.FailingTest" methodname="FailingTest" classname="CalculatorTests" result="Failed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.0489809" asserts="0" seed="1030203885">
+                    <failure>
+                        <message>  Assert.That(calc.Add(2, 2), Is.EqualTo(5))
+                            Expected: 5
+                            But was:  4
+                        </message>
+                        <stack-trace>   at TestApplication.Tests.CalculatorTests.FailingTest() in /tmp/harness-_L40PzRnQmu-nUUI7eYvUg/harness-nunit/src/TestApplication.Tests/CalculatorTests.cs:line 22
+
+                            1)    at TestApplication.Tests.CalculatorTests.FailingTest() in /tmp/harness-_L40PzRnQmu-nUUI7eYvUg/harness-nunit/src/TestApplication.Tests/CalculatorTests.cs:line 22
+
+                        </stack-trace>
+                    </failure>
+                </test-case>
+                <test-case name="PassingTest" fullname="TestApplication.Tests.CalculatorTests.PassingTest" methodname="PassingTest" classname="CalculatorTests" result="Passed" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.000368" asserts="0" seed="286253631" />
+                <test-case name="SkippedTest" fullname="TestApplication.Tests.CalculatorTests.SkippedTest" methodname="SkippedTest" classname="CalculatorTests" result="Skipped" start-time="2026-06-15T11:48:23Z" end-time="2026-06-15T11:48:23Z" duration="0.000347" asserts="0" seed="1856145066">
+                    <output><![CDATA[Intentional skip
+]]></output>
+                </test-case>
+            </test-suite>
+        </test-suite>
+    </test-suite>
+    <errors />
+</test-suite>

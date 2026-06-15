@@ -16,12 +16,12 @@
 
                     <test-case id="2-5" name="FirstTest"
                                fullname="com.example.DeepFixture.FirstTest"
-                               classname="com.example.DeepFixture"
+                               classname="DeepFixture"
                                result="Passed" duration="0.005"/>
 
                     <test-case id="2-6" name="SecondTest"
                                fullname="com.example.DeepFixture.SecondTest"
-                               classname="com.example.DeepFixture"
+                               classname="DeepFixture"
                                result="Passed" duration="0.005"/>
 
                 </test-suite>

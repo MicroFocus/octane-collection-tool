@@ -105,6 +105,31 @@ public class NunitXmlIteratorTest {
                 TestResultStatus.PASSED, 5L);
     }
 
+    @Test
+    public void testNunit3_generatedFile() throws URISyntaxException, XMLStreamException, IOException, InterruptedException {
+        File xmlFile = new File(Objects.requireNonNull(getClass().getResource("NUnit3-generated-file.xml")).toURI());
+        List<TestResult> results = parseAll(xmlFile);
+
+        Assert.assertEquals(3, results.size());
+
+        TestResult failingTest = findByName(results, "FailingTest");
+        Assert.assertNotNull(failingTest);
+        assertTestResult(failingTest,
+                "TestApplication.Tests", "CalculatorTests", "FailingTest",
+                TestResultStatus.FAILED, 48L);
+        Assert.assertNull(failingTest.getErrorType());
+        Assert.assertEquals("Assert.That(calc.Add(2, 2), Is.EqualTo(5))\n                            Expected: 5\n                            But was:  4", failingTest.getErrorMsg().trim());
+        Assert.assertTrue(failingTest.getStackTraceStr().contains("CalculatorTests.cs:line 22"));
+
+        assertTestResult(Objects.requireNonNull(findByName(results, "PassingTest")),
+                "TestApplication.Tests", "CalculatorTests", "PassingTest",
+                TestResultStatus.PASSED, 0L);
+
+        assertTestResult(Objects.requireNonNull(findByName(results, "SkippedTest")),
+                "TestApplication.Tests", "CalculatorTests", "SkippedTest",
+                TestResultStatus.SKIPPED, 0L);
+    }
+
 
     @Test
     public void testNunit3_startedTimestamp() throws URISyntaxException, XMLStreamException, IOException, InterruptedException {
