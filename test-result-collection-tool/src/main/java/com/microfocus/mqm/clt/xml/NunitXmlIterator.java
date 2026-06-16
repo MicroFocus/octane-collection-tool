@@ -72,6 +72,7 @@ public class NunitXmlIterator extends AbstractXmlIterator<TestResult> {
     private static final String TEST_CASE_ELEMENT = "test-case";
     private static final String NAME_ELEMENT = "name";
     private static final String CLASSNAME_ELEMENT = "classname";
+    private static final String FULLNAME_ELEMENT = "fullname";
     private static final String RESULT_ELEMENT = "result";
     private static final String DURATION_ELEMENT = "duration";
     private static final String MESSAGE_ELEMENT = "message";
@@ -81,6 +82,7 @@ public class NunitXmlIterator extends AbstractXmlIterator<TestResult> {
 
     private String packageName;
     private String className;
+    private String fullName;
     private String testName;
     private TestResultStatus status;
     private long duration;
@@ -123,13 +125,16 @@ public class NunitXmlIterator extends AbstractXmlIterator<TestResult> {
                     if (NAME_ELEMENT.equals(attrName)) {
                         testName = restrictSizeTo255(attribute.getValue());
                     } else if (CLASSNAME_ELEMENT.equals(attrName)) {
-                        parseClassname(attribute.getValue());
+                        className = attribute.getValue();
+                    } else if (FULLNAME_ELEMENT.equals(attrName)) {
+                        fullName = attribute.getValue();
                     } else if (RESULT_ELEMENT.equals(attrName)) {
                         status = parseStatus(attribute.getValue());
                     } else if (DURATION_ELEMENT.equals(attrName)) {
                         duration = parseDuration(attribute.getValue());
                     }
                 }
+                parseNamespace(fullName, className, testName);
 
             } else if (MESSAGE_ELEMENT.equals(localName) && status == TestResultStatus.FAILED) {
                 insideFailureMessage = true;
@@ -180,21 +185,12 @@ public class NunitXmlIterator extends AbstractXmlIterator<TestResult> {
         }
     }
 
-    /** Splits a fully qualified NUnit classname into a package and a simple class name. */
-    private void parseClassname(String fullyQualifiedName) {
-        if (fullyQualifiedName == null || fullyQualifiedName.isEmpty()) {
-            packageName = EMPTY_STRING;
-            className = EMPTY_STRING;
-            return;
-        }
-        int lastDotIndex = fullyQualifiedName.lastIndexOf(PACKAGE_SEPARATOR);
-        if (lastDotIndex > 0) {
-            packageName = fullyQualifiedName.substring(0, lastDotIndex);
-            className = fullyQualifiedName.substring(lastDotIndex + 1);
-        } else {
-            packageName = EMPTY_STRING;
-            className = fullyQualifiedName;
-        }
+    private void parseNamespace(String fullName, String className, String testName) {
+        // fullname="CalculatorApp.Tests.CalculatorTests.FailedTest" methodname="FailedTest" classname="CalculatorTests"
+        String prefixTestName = PACKAGE_SEPARATOR + testName;
+        String prefixClassName = PACKAGE_SEPARATOR + className;
+        packageName = fullName.replace(prefixTestName, StringUtils.EMPTY)
+                .replace(prefixClassName, StringUtils.EMPTY);
     }
 
     /** Converts an NUnit duration (fractional seconds) to milliseconds. */

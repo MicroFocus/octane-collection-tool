@@ -32,12 +32,12 @@
 
         <test-case id="1-2" name="PassingTest"
                    fullname="com.example.tests.SampleFixture.PassingTest"
-                   classname="com.example.tests.SampleFixture"
+                   classname="SampleFixture"
                    result="Passed" duration="0.001"/>
 
         <test-case id="1-3" name="FailingTest"
                    fullname="com.example.tests.SampleFixture.FailingTest"
-                   classname="com.example.tests.SampleFixture"
+                   classname="SampleFixture"
                    result="Failed" duration="0.002">
             <failure>
                 <message><![CDATA[Expected 1 but was 2]]></message>
@@ -47,7 +47,7 @@
 
         <test-case id="1-4" name="SkippedTest"
                    fullname="com.example.tests.SampleFixture.SkippedTest"
-                   classname="com.example.tests.SampleFixture"
+                   classname="SampleFixture"
                    result="Skipped" duration="0.000">
             <reason>
                 <message><![CDATA[Ignored: not yet implemented]]></message>
@@ -56,12 +56,12 @@
 
         <test-case id="1-5" name="InconclusiveTest"
                    fullname="com.example.tests.SampleFixture.InconclusiveTest"
-                   classname="com.example.tests.SampleFixture"
+                   classname="SampleFixture"
                    result="Inconclusive" duration="0.003"/>
 
         <test-case id="1-6" name="AnotherPassingTest"
                    fullname="com.example.tests.SampleFixture.AnotherPassingTest"
-                   classname="com.example.tests.SampleFixture"
+                   classname="SampleFixture"
                    result="Passed" duration="0.004"/>
 
     </test-suite>
