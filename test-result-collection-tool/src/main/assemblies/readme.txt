@@ -204,7 +204,7 @@ coverage data in a single command invocation.
 Supported test result formats
 -----------------------------
 
-This tool accepts JUnit test reports. This format is shown in the following example:
+This tool accepts JUnit and NUnit test reports. The JUnit format is shown in the following example:
 
     <!-- element encapsulating testcases -->
 	<testsuite>
