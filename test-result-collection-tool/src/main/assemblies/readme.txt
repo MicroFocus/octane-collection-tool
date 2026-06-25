@@ -9,7 +9,7 @@ Any reference to the HP and Hewlett Packard Enterprise/HPE marks is historical i
 ------------------------------------------------------------------------------------------------------------------------
 
 The Test Result Collection Tool is a command line tool for pushing test result XML files and code coverage reports to the ALM Octane APIs.
-Supported XML formats are the ALM Octane / ValueEdge format and JUnit format.
+Supported XML formats are the ALM Octane / ValueEdge format, JUnit and NUnit format.
 Supported code coverage formats are JaCoCo XML, LCOV, and SonarQube reports.
 
 Usage
@@ -204,7 +204,7 @@ coverage data in a single command invocation.
 Supported test result formats
 -----------------------------
 
-This tool accepts JUnit test reports. This format is shown in the following example:
+This tool accepts JUnit and NUnit test reports. The JUnit format is shown in the following example:
 
     <!-- element encapsulating testcases -->
 	<testsuite>
