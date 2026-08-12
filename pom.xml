@@ -47,13 +47,14 @@
         <jdk.version>11</jdk.version>
         <maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
         <commons-io.version>2.18.0</commons-io.version>
-        <commons.lang.version>2.3</commons.lang.version>
         <commons-cli.version>1.3.1</commons-cli.version>
         <commons-lang3.version>3.1</commons-lang3.version>
         <httpclient.version>4.5.13</httpclient.version>
         <json.version>20231013</json.version>
         <junit.version>4.13.1</junit.version>
         <surefire.version>2.18.1</surefire.version>
+        <failsafe.version>2.18.1</failsafe.version>
+        <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
