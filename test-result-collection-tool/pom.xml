@@ -179,6 +179,7 @@
                     <plugin>
                         <artifactId>exec-maven-plugin</artifactId>
                         <groupId>org.codehaus.mojo</groupId>
+                        <version>${exec-maven-plugin.version}</version>
                         <executions>
                             <execution><!-- Run our version calculation script -->
                                 <phase>package</phase>
@@ -216,6 +217,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
                     </plugin>
                 </plugins>
             </build>
