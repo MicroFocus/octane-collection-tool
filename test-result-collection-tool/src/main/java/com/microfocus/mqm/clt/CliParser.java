@@ -133,7 +133,7 @@ public class CliParser {
                 "build-context-server-id","build-context-build-id","build-context-job-id", "bearer-token", "coverage-report-type"));
         argsRestrictedForInternal.addAll(Arrays.asList("o", "t", "f", "r", "m", "a", "b", "started", "suite", "suite-external-run-id", "program", "release-default",
                 "build-context-server-id","build-context-build-id","build-context-job-id"));
-        argsForBuildContext.addAll(Arrays.asList("build-context-server-id","build-context-build-id","build-context-job-id"));
+        argsForBuildContext.addAll(Arrays.asList("build-context-build-id","build-context-job-id"));
     }
 
     public Settings parse(String[] args) {
@@ -572,11 +572,6 @@ public class CliParser {
             if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
                 if (settings.getCoverageReportType() == null || settings.getCoverageReportType().isEmpty()) {
                     System.out.println("--coverage-report-type is required when coverage reports are specified. Valid values: " + COVERAGE_REPORT_TYPES);
-                    return false;
-                }
-                if (!settings.isBuildContextDefined()) {
-                    System.out.println("Build context parameters (--build-context-server-id, --build-context-job-id, --build-context-build-id) "
-                            + "are required when pushing coverage reports");
                     return false;
                 }
             }
