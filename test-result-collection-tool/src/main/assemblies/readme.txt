@@ -35,7 +35,9 @@ Usage
                                        that the tool can be run without, since the ci
                                        server can be deduced from the combination of
                                        --build-context-job-id +
-                                       --build-context-build-id from the specified workspace.
+                                       --build-context-build-id. if provided, workspace
+                                       parameter is also required. If omitted, workspace
+                                       parameter must also be omitted.
    -c,--config-file <FILE>              configuration file location
       --check-result                    check test result status after push
       --check-result-timeout <SEC>      timeout for test result push status
