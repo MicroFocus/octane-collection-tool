@@ -59,6 +59,7 @@
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+        <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     </properties>
     <modules>
         <module>test-result-collection-tool</module>
@@ -140,6 +141,31 @@
                                         <goal>jar</goal>
                                         <goal>test-jar</goal>
                                     </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-enforcer-plugin</artifactId>
+                            <version>${maven-enforcer-plugin.version}</version>
+                            <executions>
+                                <execution>
+                                    <id>enforce-pinned-versions</id>
+                                    <phase>validate</phase>
+                                    <goals>
+                                        <goal>enforce</goal>
+                                    </goals>
+                                    <configuration>
+                                        <rules>
+                                            <banDynamicVersions>
+                                                <allowSnapshots>false</allowSnapshots>
+                                            </banDynamicVersions>
+                                            <requireReleaseDeps>
+                                                <message>No SNAPSHOT dependencies are allowed. All dependencies must use pinned release versions.</message>
+                                            </requireReleaseDeps>
+                                        </rules>
+                                        <fail>true</fail>
+                                    </configuration>
                                 </execution>
                             </executions>
                         </plugin>
