@@ -293,10 +293,8 @@ public class RestClient {
 
     protected URI createTestResultPushUri() {
         if (settings.getWorkspace() == null) {
-            URI uri =  URI.create(createBaseUri(SHARED_SPACE_INTERNAL_API_URI, settings.getSharedspace()) + "/" +
+            return URI.create(createBaseUri(SHARED_SPACE_INTERNAL_API_URI, settings.getSharedspace()) + "/" +
                     resolveTemplate(URI_SHARED_SPACE_TEST_RESULT_PUSH, asMap(settings.isSkipErrors())));
-            System.out.println("Test result push will be sent to the shared space level endpoint: " + uri);
-            return uri;
         }
         return createWorkspaceApiUri(URI_TEST_RESULT_PUSH, settings.isSkipErrors());
     }
