@@ -540,7 +540,7 @@ public class CliParser {
                 return false;
             }
 
-            if (!isSettingPresent(settings.getWorkspace(), "workspace")) {
+            if (settings.isCheckResult() && !isSettingPresent(settings.getWorkspace(), "workspace")) {
                 return false;
             }
 
@@ -566,6 +566,17 @@ public class CliParser {
 
             if (settings.getRelease() != null && settings.isDefaultRelease()) {
                 System.out.println("Default release cannot be assigned along with release ID assignment");
+                return false;
+            }
+
+            boolean hasWorkspace = settings.getWorkspace() != null;
+            boolean hasBuildContextServerId = settings.getBuildContextServerId() != null;
+            if (hasWorkspace && !hasBuildContextServerId) {
+                System.out.println("'workspace' requires 'build-context-server-id' to also be specified");
+                return false;
+            }
+            if (hasBuildContextServerId && !hasWorkspace) {
+                System.out.println("'build-context-server-id' requires 'workspace' to also be specified");
                 return false;
             }
 

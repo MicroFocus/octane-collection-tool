@@ -197,10 +197,9 @@ When pushing code coverage reports, the following build context parameters are r
 In addition, provide one of the following:
 * --build-context-server-id <ID> Server instance identifier, in order to inject code coverage into the desired pipeline (for example if you have the same pipeline
 configured in multiple workspaces, and you only want to push code coverage reports for one of them. If you want to push code coverage reports for all workspaces,
-you can omit this parameter).
-
-If --build-context-server-id is omitted, the tool deduces it from the combination
-of job id + build id + workspace, but pushes code coverage to all instances of the pipeline across the shared space.
+you can omit this parameter). Note: if provided, this parameter MUST be used in combination with workspace id. Failure to do so will provide in a validation error.
+In the same way, if you want to push code coverage reports for all workspaces, you MUST omit both --build-context-server-id and --workspace parameters. See the Examples
+section below for some running examples.
 
 Example configuration file with coverage support:
 
@@ -308,13 +307,24 @@ file, which is placed in the same directory as this tool. Result file appears in
         --build-context-job-id "job-id"
         --build-context-build-id "build-123"
 
-8.  Push code coverage reports and test results without providing the -- build-context-server-id parameter
-    (deduced from jobId and buildId).
+8.  Push code coverage reports and test results without providing the -- build-context-server-id and workspace parameters
+    (this behavior will result in tests and code coverage data being pushed to all instances of your pipeline, across the shared space).
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080"
-        -d 1001 -w 1002 --bearer-token "eyJhbGci..."
+        -d 1001 --bearer-token "eyJhbGci..."
         --coverage-reports "target/site/jacoco/jacoco.xml"
         --coverage-report-type JACOCOXML
         --build-context-job-id "myJobId"
         --build-context-build-id "123"
         JUnitOne.xml
+
+9. Push code coverage reports and test results to a specific pipeline in a specific workspace.
+
+    java -jar test-result-collection-tool.jar -s "http://localhost:8080"
+            -d 1001 -w 1002--bearer-token "eyJhbGci..."
+            --coverage-reports "target/site/jacoco/jacoco.xml"
+            --coverage-report-type JACOCOXML
+            --build-context-server-id "server-id"
+            --build-context-job-id "myJobId"
+            --build-context-build-id "123"
+            JUnitOne.xml

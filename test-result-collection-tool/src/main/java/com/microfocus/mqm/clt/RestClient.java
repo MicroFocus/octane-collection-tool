@@ -97,9 +97,11 @@ public class RestClient {
     static final String URI_LOGOUT = "authentication/sign_out";
 
     private static final String SHARED_SPACE_API_URI = "api/shared_spaces/{0}";
+    private static final String SHARED_SPACE_INTERNAL_API_URI = "internal-api/shared_spaces/{0}";
     private static final String WORKSPACE_API_URI = SHARED_SPACE_API_URI + "/workspaces/{1}";
 
     private static final String URI_TEST_RESULT_PUSH = "test-results?skip-errors={0}";
+    private static final String URI_SHARED_SPACE_TEST_RESULT_PUSH = "analytics/ci/test-results?skip-errors={0}";
     private static final String URI_TEST_RESULT_STATUS = "test-results/{0}";
 
     /**
@@ -255,7 +257,7 @@ public class RestClient {
     }
 
     public long postTestResult(HttpEntity entity) throws IOException, ValidationException {
-        HttpPost request = new HttpPost(createWorkspaceApiUri(URI_TEST_RESULT_PUSH, settings.isSkipErrors()));
+        HttpPost request = new HttpPost(createTestResultPushUri());
         request.setEntity(entity);
         CloseableHttpResponse response = null;
         JSONObject jsonObject;
@@ -289,7 +291,20 @@ public class RestClient {
         }
     }
 
+    protected URI createTestResultPushUri() {
+        if (settings.getWorkspace() == null) {
+            URI uri =  URI.create(createBaseUri(SHARED_SPACE_INTERNAL_API_URI, settings.getSharedspace()) + "/" +
+                    resolveTemplate(URI_SHARED_SPACE_TEST_RESULT_PUSH, asMap(settings.isSkipErrors())));
+            System.out.println("Test result push will be sent to the shared space level endpoint: " + uri);
+            return uri;
+        }
+        return createWorkspaceApiUri(URI_TEST_RESULT_PUSH, settings.isSkipErrors());
+    }
+
     public TestResultPushStatus getTestResultStatus(long id) {
+        if (settings.getWorkspace() == null) {
+            throw new IllegalStateException("Test result status retrieval requires a workspace ID.");
+        }
         HttpGet request = new HttpGet(createWorkspaceApiUri(URI_TEST_RESULT_STATUS, id));
         CloseableHttpResponse response = null;
         try {
