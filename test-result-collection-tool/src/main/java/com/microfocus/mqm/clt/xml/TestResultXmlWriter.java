@@ -111,13 +111,20 @@ public class TestResultXmlWriter {
     }
 
     private void writeBuildContext(Settings settings) throws XMLStreamException {
-        if (settings == null || !settings.isBuildContextDefined()) {
+        if (settings == null) {
             return;
         }
+        String serverId = settings.getBuildContextServerId();
+        String jobId = settings.getBuildContextJobId();
+        String buildId = settings.getBuildContextBuildId();
+
         writer.writeStartElement("build");
-        writer.writeAttribute("server_id", settings.getBuildContextServerId());
-        writer.writeAttribute("job_id", settings.getBuildContextJobId());
-        writer.writeAttribute("build_id", settings.getBuildContextBuildId());
+        if (serverId != null) {
+            writer.writeAttribute("server_id", serverId);
+        }
+        writer.writeAttribute("job_id", jobId);
+        writer.writeAttribute("build_id", buildId);
+
         writer.writeEndElement(); // build
     }
 

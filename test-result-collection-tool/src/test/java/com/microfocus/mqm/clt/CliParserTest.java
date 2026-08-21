@@ -289,17 +289,38 @@ public class CliParserTest {
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertFalse(result);
 
-        settings.setWorkspace(1002);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertFalse(result); // no auth configured
 
-        // bearer token alone is sufficient
+        // bearer token alone is sufficient, workspace is optional
         settings.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertTrue(result);
 
+        settings.setCheckResult(true);
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertFalse(result);
+
+        settings.setWorkspace(1002);
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertFalse(result); // workspace without build-context-server-id is invalid
+
+        settings.setBuildContextServerId("server1");
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertTrue(result);
+
+        // build-context-server-id without workspace is also invalid
+        Settings settingsNoWorkspace = new Settings();
+        settingsNoWorkspace.setServer("http://test.hp.com:8080");
+        settingsNoWorkspace.setSharedspace(1001);
+        settingsNoWorkspace.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        settingsNoWorkspace.setBuildContextServerId("server1");
+        result = (Boolean) settingsValidation.invoke(cliParser, settingsNoWorkspace);
+        Assert.assertFalse(result); // build-context-server-id without workspace is invalid
+
         // user + password is also sufficient
         settings.setBearerToken(null);
+        settings.setCheckResult(false);
         settings.setUser("admin");
         settings.setPassword("password".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
