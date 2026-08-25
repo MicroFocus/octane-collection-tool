@@ -44,9 +44,9 @@ import java.io.IOException;
  * Detects the format of an XML test result file by inspecting its root element.
  *
  * <ul>
- *   <li>{@code <testsuite>} or {@code <testsuites>} → {@link XmlTestResultFormat#JUNIT}</li>
- *   <li>{@code <test-run>} → {@link XmlTestResultFormat#NUNIT}</li>
- *   <li>Anything else → {@link XmlTestResultFormat#UNKNOWN}</li>
+ *   <li>{@code <testsuite>} or {@code <testsuites>} -> {@link XmlTestResultFormat#JUNIT}</li>
+ *   <li>{@code <test-run>} -> {@link XmlTestResultFormat#NUNIT}</li>
+ *   <li>Anything else -> {@link XmlTestResultFormat#UNKNOWN}</li>
  * </ul>
  */
 public class XmlFormatDetector {

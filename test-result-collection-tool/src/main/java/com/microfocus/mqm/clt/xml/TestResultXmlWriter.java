@@ -118,12 +118,21 @@ public class TestResultXmlWriter {
         String jobId = settings.getBuildContextJobId();
         String buildId = settings.getBuildContextBuildId();
 
+        if (serverId == null && jobId == null && buildId == null) {
+            // no build context defined, nothing to write
+            return;
+        }
+
         writer.writeStartElement("build");
         if (serverId != null) {
             writer.writeAttribute("server_id", serverId);
         }
-        writer.writeAttribute("job_id", jobId);
-        writer.writeAttribute("build_id", buildId);
+        if (jobId != null) {
+            writer.writeAttribute("job_id", jobId);
+        }
+        if (buildId != null) {
+            writer.writeAttribute("build_id", buildId);
+        }
 
         writer.writeEndElement(); // build
     }

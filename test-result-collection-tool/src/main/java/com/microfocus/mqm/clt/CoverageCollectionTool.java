@@ -45,9 +45,9 @@ import java.util.logging.Logger;
  * <p>Coverage reports are pushed one file at a time using an HTTP PUT request.
  * Supported formats (passed via {@code --coverage-report-type}):
  * <ul>
- *   <li>{@code JACOCOXML} – JaCoCo XML report</li>
- *   <li>{@code SONAR}     – SonarQube generic coverage XML</li>
- *   <li>{@code LCOV}      – LCOV / gcov trace file</li>
+ *   <li>{@code JACOCOXML} - JaCoCo XML report</li>
+ *   <li>{@code SONAR}     - SonarQube generic coverage XML</li>
+ *   <li>{@code LCOV}      - LCOV / gcov trace file</li>
  * </ul>
  *
  * <p>Build-context parameters ({@code --build-context-server-id},

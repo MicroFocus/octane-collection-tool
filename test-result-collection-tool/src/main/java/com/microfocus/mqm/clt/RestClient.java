@@ -105,7 +105,7 @@ public class RestClient {
     private static final String URI_TEST_RESULT_STATUS = "test-results/{0}";
 
     /**
-     * Coverage push endpoint – shared-space level (no workspace segment).
+     * Coverage push endpoint - shared-space level (no workspace segment).
      * Full path: {@code api/shared_spaces/{ss}/analytics/ci/coverage}
      */
     private static final String URI_COVERAGE_PUSH = "api/shared_spaces/{0}/analytics/ci/coverage";
