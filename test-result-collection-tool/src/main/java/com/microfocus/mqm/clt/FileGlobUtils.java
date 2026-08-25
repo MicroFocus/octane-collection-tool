@@ -44,15 +44,15 @@ import java.util.stream.Stream;
  * <p>
  * Supported patterns:
  * <ul>
- *   <li>Literal path – {@code target/surefire-reports/TEST-foo.xml}</li>
- *   <li>Single-level wildcard – {@code target/surefire-reports/*.xml}</li>
- *   <li>Recursive wildcard – {@code target/site/&#42;&#42;/*.xml}</li>
+ *   <li>Literal path - {@code target/surefire-reports/TEST-foo.xml}</li>
+ *   <li>Single-level wildcard - {@code target/surefire-reports/*.xml}</li>
+ *   <li>Recursive wildcard - {@code target/site/&#42;&#42;/*.xml}</li>
  * </ul>
  * Patterns without glob characters are treated as literal file paths.
  * All patterns are resolved relative to the current working directory unless absolute.
  * <p>
  * Implementation uses Java NIO's {@link PathMatcher} and {@link Files#walk(Path, int, FileVisitOption...)}
- * — no external dependencies required.
+ * - no external dependencies required.
  */
 public final class FileGlobUtils {
 
@@ -89,7 +89,7 @@ public final class FileGlobUtils {
     }
 
     /**
-     * Handles literal (non-glob) paths — returns the single file if it exists and is readable.
+     * Handles literal (non-glob) paths - returns the single file if it exists and is readable.
      */
     private static List<String> resolveLiteralPath(String pattern) {
         String cleaned = stripLeadingSlashOnWindows(pattern);
@@ -105,7 +105,7 @@ public final class FileGlobUtils {
     }
 
     /**
-     * Handles glob patterns — walks the base directory and filters with a {@link PathMatcher}.
+     * Handles glob patterns - walks the base directory and filters with a {@link PathMatcher}.
      */
     private static List<String> resolveGlob(String normalizedPattern) {
         String cleaned = stripLeadingSlashOnWindows(normalizedPattern);

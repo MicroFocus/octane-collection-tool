@@ -57,12 +57,12 @@ public class NunitXmlIteratorTest {
 
         Assert.assertEquals(5, results.size());
 
-        // PassingTest – result="Passed", duration=0.001 s -> 1 ms
+        // PassingTest - result="Passed", duration=0.001 s -> 1 ms
         assertTestResult(Objects.requireNonNull(findByName(results, "PassingTest")),
                 "com.example.tests", "SampleFixture", "PassingTest",
                 TestResultStatus.PASSED, 1L);
 
-        // FailingTest – result="Failed", duration=0.002 s -> 2 ms
+        // FailingTest - result="Failed", duration=0.002 s -> 2 ms
         TestResult failingTest = findByName(results, "FailingTest");
         Assert.assertNotNull(failingTest);
         assertTestResult(failingTest,
@@ -72,17 +72,17 @@ public class NunitXmlIteratorTest {
         Assert.assertEquals("Expected 1 but was 2", failingTest.getErrorMsg().trim());
         Assert.assertTrue(failingTest.getStackTraceStr().contains("SampleFixture.cs:line 25"));
 
-        // SkippedTest – result="Skipped", duration=0 ms
+        // SkippedTest - result="Skipped", duration=0 ms
         assertTestResult(Objects.requireNonNull(findByName(results, "SkippedTest")),
                 "com.example.tests", "SampleFixture", "SkippedTest",
                 TestResultStatus.SKIPPED, 0L);
 
-        // InconclusiveTest – result="Inconclusive" -> SKIPPED, duration=0.003 s -> 3 ms
+        // InconclusiveTest - result="Inconclusive" -> SKIPPED, duration=0.003 s -> 3 ms
         assertTestResult(Objects.requireNonNull(findByName(results, "InconclusiveTest")),
                 "com.example.tests", "SampleFixture", "InconclusiveTest",
                 TestResultStatus.SKIPPED, 3L);
 
-        // AnotherPassingTest – result="Passed", duration=0.004 s -> 4 ms
+        // AnotherPassingTest - result="Passed", duration=0.004 s -> 4 ms
         assertTestResult(Objects.requireNonNull(findByName(results, "AnotherPassingTest")),
                 "com.example.tests", "SampleFixture", "AnotherPassingTest",
                 TestResultStatus.PASSED, 4L);
