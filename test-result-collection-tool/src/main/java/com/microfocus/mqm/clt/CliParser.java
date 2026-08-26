@@ -540,10 +540,6 @@ public class CliParser {
                 return false;
             }
 
-            if (settings.isCheckResult() && !isSettingPresent(settings.getWorkspace(), "workspace")) {
-                return false;
-            }
-
             if (!isAuthenticationConfigured(settings)) {
                 System.out.println("Authentication not configured. Provide one of: (1) user + password, (2) user + password + access-token, or (3) bearer-token");
                 return false;

@@ -299,7 +299,7 @@ public class CliParserTest {
 
         settings.setCheckResult(true);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
-        Assert.assertFalse(result);
+        Assert.assertTrue(result);
 
         settings.setWorkspace(1002);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
