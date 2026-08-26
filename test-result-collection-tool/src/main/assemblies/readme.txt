@@ -214,6 +214,31 @@ Note: Code coverage reports are pushed independently from test results and can b
 used in combination with positional file arguments to push both test results and
 coverage data in a single command invocation.
 
+Limitations
+-----------
+
+Omitting --workspace and --build-context-server-id (job name collisions)
+
+When the tool is run without the --workspace (-w) and --build-context-server-id
+parameters, the target pipeline is resolved only from the combination of
+--build-context-job-id and --build-context-build-id, across all workspaces of the
+shared space. This means that the job id/name is the only identifier used for the
+match.
+
+If you have more than one CI server instance connected to Octane, and jobs
+belonging to different pipelines share the same name (job id), the tool cannot
+distinguish between them, without a provided instance-id that could have differentiate
+between them. In that case the same test results (and code coverage
+data) can be pushed to all the matching pipelines, resulting in duplicated
+test results - even though these pipelines are unrelated and may behave
+completely differently.
+
+To avoid this, run the tool with both --workspace and --build-context-server-id,
+so that the pipeline is resolved unambiguously for a specific CI server instance
+and workspace. Remember that these two parameters must be used together: if
+--build-context-server-id is provided, --workspace is required as well, and if one
+is omitted, both must be omitted (see Example 9).
+
 Supported test result formats
 -----------------------------
 
@@ -311,6 +336,8 @@ file, which is placed in the same directory as this tool. Result file appears in
 
 8.  Push code coverage reports and test results without providing the -- build-context-server-id and workspace parameters
     (this behavior will result in tests and code coverage data being pushed to all instances of your pipeline, across the shared space).
+    Caution: if jobs with the same name exist on different CI server instances, this can duplicate test results.
+    See the Limitations section above.
 
     java -jar test-result-collection-tool.jar -s "http://localhost:8080"
         -d 1001 --bearer-token "eyJhbGci..."
