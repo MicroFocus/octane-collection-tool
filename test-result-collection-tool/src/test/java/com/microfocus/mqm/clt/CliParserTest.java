@@ -303,7 +303,12 @@ public class CliParserTest {
 
         settings.setWorkspace(1002);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
-        Assert.assertFalse(result); // workspace without build-context-server-id is invalid
+        Assert.assertTrue(result); // workspace without build-context params is valid
+
+        settings.setBuildContextJobId("job1");
+        settings.setBuildContextBuildId("build1");
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertFalse(result); // workspace + build-context requires build-context-server-id
 
         settings.setBuildContextServerId("server1");
         result = (Boolean) settingsValidation.invoke(cliParser, settings);

@@ -566,12 +566,17 @@ public class CliParser {
             }
 
             boolean hasWorkspace = settings.getWorkspace() != null;
-            boolean hasBuildContextServerId = settings.getBuildContextServerId() != null;
-            if (hasWorkspace && !hasBuildContextServerId) {
+            boolean hasBuildContextServerId = StringUtils.isNotBlank(settings.getBuildContextServerId());
+            boolean hasBuildContextJobId = StringUtils.isNotBlank(settings.getBuildContextJobId());
+            boolean hasBuildContextBuildId = StringUtils.isNotBlank(settings.getBuildContextBuildId());
+            boolean hasAnyBuildContextParameter = hasBuildContextServerId || hasBuildContextJobId || hasBuildContextBuildId;
+
+            // Keep workspace/server-id coupling only when build context is explicitly used.
+            if (hasAnyBuildContextParameter && hasWorkspace && !hasBuildContextServerId) {
                 System.out.println("'workspace' requires 'build-context-server-id' to also be specified");
                 return false;
             }
-            if (hasBuildContextServerId && !hasWorkspace) {
+            if (hasAnyBuildContextParameter && hasBuildContextServerId && !hasWorkspace) {
                 System.out.println("'build-context-server-id' requires 'workspace' to also be specified");
                 return false;
             }
