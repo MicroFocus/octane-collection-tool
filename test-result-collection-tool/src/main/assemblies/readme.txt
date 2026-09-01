@@ -35,9 +35,11 @@ Usage
                                        that the tool can be run without, since the ci
                                        server can be deduced from the combination of
                                        --build-context-job-id +
-                                       --build-context-build-id. if provided, workspace
-                                       parameter is also required. If omitted, workspace
-                                       parameter must also be omitted.
+                                       --build-context-build-id. If provided,
+                                       workspace parameter is also required.
+                                       For regular test-result push without
+                                       build-context parameters, workspace can
+                                       still be provided on its own (see Example 1).
    -c,--config-file <FILE>              configuration file location
       --check-result                    check test result status after push
       --check-result-timeout <SEC>      timeout for test result push status
@@ -199,9 +201,9 @@ When pushing code coverage reports, the following build context parameters are r
 In addition, provide one of the following:
 * --build-context-server-id <ID> Server instance identifier, in order to inject code coverage into the desired pipeline (for example if you have the same pipeline
 configured in multiple workspaces, and you only want to push code coverage reports for one of them. If you want to push code coverage reports for all workspaces,
-you can omit this parameter). Note: if provided, this parameter MUST be used in combination with workspace id. Failure to do so will provide in a validation error.
-In the same way, if you want to push code coverage reports for all workspaces, you MUST omit both --build-context-server-id and --workspace parameters. See the Examples
-section below for some running examples.
+you can omit this parameter). Note: in build-context scenarios, if this parameter is provided, it MUST be used in combination with workspace id. Failure to do so
+will provide a validation error. In the same way, if you want to push code coverage reports for all workspaces, you MUST omit both --build-context-server-id and
+--workspace parameters. See the Examples section below for some running examples.
 
 Example configuration file with coverage support:
 
@@ -227,7 +229,7 @@ match.
 
 If you have more than one CI server instance connected to Octane, and jobs
 belonging to different pipelines share the same name (job id), the tool cannot
-distinguish between them, without a provided instance-id that could have differentiate
+distinguish between them, without a provided instance-id that could have differentiated
 between them. In that case the same test results (and code coverage
 data) can be pushed to all the matching pipelines, resulting in duplicated
 test results - even though these pipelines are unrelated and may behave
@@ -235,9 +237,12 @@ completely differently.
 
 To avoid this, run the tool with both --workspace and --build-context-server-id,
 so that the pipeline is resolved unambiguously for a specific CI server instance
-and workspace. Remember that these two parameters must be used together: if
---build-context-server-id is provided, --workspace is required as well, and if one
-is omitted, both must be omitted (see Example 9).
+and workspace. For test injection associated to a build context, these two
+parameters must be used together: if --build-context-server-id is provided,
+--workspace is required as well, and if you want to target all matching
+workspaces you must omit both of them (see Example 8). For regular test-result
+push without build-context parameters, --workspace can still be provided on its
+own (see Example 1).
 
 Supported test result formats
 -----------------------------

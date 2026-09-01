@@ -565,7 +565,18 @@ public class CliParser {
                 return false;
             }
 
-            boolean hasWorkspace = settings.getWorkspace() != null;
+            boolean hasWorkspace = hasWorkspace(settings);
+
+            if (settings.getSuite() != null && !hasWorkspace) {
+                System.out.println("'suite' requires 'workspace' to also be specified");
+                return false;
+            }
+
+            if (settings.isInternal() && !hasWorkspace) {
+                System.out.println("'internal' mode requires 'workspace' to also be specified");
+                return false;
+            }
+
             boolean hasBuildContextServerId = StringUtils.isNotBlank(settings.getBuildContextServerId());
             boolean hasBuildContextJobId = StringUtils.isNotBlank(settings.getBuildContextJobId());
             boolean hasBuildContextBuildId = StringUtils.isNotBlank(settings.getBuildContextBuildId());
@@ -573,11 +584,11 @@ public class CliParser {
 
             // Keep workspace/server-id coupling only when build context is explicitly used.
             if (hasAnyBuildContextParameter && hasWorkspace && !hasBuildContextServerId) {
-                System.out.println("'workspace' requires 'build-context-server-id' to also be specified");
+                System.out.println("'workspace' requires 'build-context-server-id' to also be specified when attaching test results to a build context");
                 return false;
             }
             if (hasAnyBuildContextParameter && hasBuildContextServerId && !hasWorkspace) {
-                System.out.println("'build-context-server-id' requires 'workspace' to also be specified");
+                System.out.println("'build-context-server-id' requires 'workspace' to also be specified when attaching test results to a build context");
                 return false;
             }
 
@@ -589,6 +600,10 @@ public class CliParser {
             }
         }
         return true;
+    }
+
+    private boolean hasWorkspace(Settings settings) {
+        return settings.getWorkspace() != null;
     }
 
     private boolean isAuthenticationConfigured(Settings settings) {

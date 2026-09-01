@@ -305,6 +305,10 @@ public class CliParserTest {
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertTrue(result); // workspace without build-context params is valid
 
+        settings.setSuite(42);
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertTrue(result); // suite with workspace is valid
+
         settings.setBuildContextJobId("job1");
         settings.setBuildContextBuildId("build1");
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
@@ -323,8 +327,29 @@ public class CliParserTest {
         result = (Boolean) settingsValidation.invoke(cliParser, settingsNoWorkspace);
         Assert.assertFalse(result); // build-context-server-id without workspace is invalid
 
+        Settings settingsSuiteNoWorkspace = new Settings();
+        settingsSuiteNoWorkspace.setServer("http://test.hp.com:8080");
+        settingsSuiteNoWorkspace.setSharedspace(1001);
+        settingsSuiteNoWorkspace.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        settingsSuiteNoWorkspace.setSuite(42);
+        result = (Boolean) settingsValidation.invoke(cliParser, settingsSuiteNoWorkspace);
+        Assert.assertFalse(result); // suite without workspace is invalid
+
+        Settings settingsInternalNoWorkspace = new Settings();
+        settingsInternalNoWorkspace.setServer("http://test.hp.com:8080");
+        settingsInternalNoWorkspace.setSharedspace(1001);
+        settingsInternalNoWorkspace.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        settingsInternalNoWorkspace.setInternal(true);
+        result = (Boolean) settingsValidation.invoke(cliParser, settingsInternalNoWorkspace);
+        Assert.assertFalse(result); // internal mode without workspace is invalid
+
+        settingsInternalNoWorkspace.setWorkspace(1002);
+        result = (Boolean) settingsValidation.invoke(cliParser, settingsInternalNoWorkspace);
+        Assert.assertTrue(result); // internal mode with workspace is valid
+
         // user + password is also sufficient
         settings.setBearerToken(null);
+        settings.setSuite(null);
         settings.setCheckResult(false);
         settings.setUser("admin");
         settings.setPassword("password".getBytes(java.nio.charset.StandardCharsets.UTF_8));
