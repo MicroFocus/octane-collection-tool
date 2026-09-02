@@ -565,31 +565,22 @@ public class CliParser {
                 return false;
             }
 
-            boolean hasWorkspace = hasWorkspace(settings);
-
-            if (settings.getSuite() != null && !hasWorkspace) {
-                System.out.println("'suite' requires 'workspace' to also be specified");
-                return false;
-            }
-
-            if (settings.isInternal() && !hasWorkspace) {
-                System.out.println("'internal' mode requires 'workspace' to also be specified");
-                return false;
-            }
-
+            boolean hasWorkspace = settings.getWorkspace() != null;
             boolean hasBuildContextServerId = StringUtils.isNotBlank(settings.getBuildContextServerId());
             boolean hasBuildContextJobId = StringUtils.isNotBlank(settings.getBuildContextJobId());
             boolean hasBuildContextBuildId = StringUtils.isNotBlank(settings.getBuildContextBuildId());
-            boolean hasAnyBuildContextParameter = hasBuildContextServerId || hasBuildContextJobId || hasBuildContextBuildId;
 
-            // Keep workspace/server-id coupling only when build context is explicitly used.
-            if (hasAnyBuildContextParameter && hasWorkspace && !hasBuildContextServerId) {
-                System.out.println("'workspace' requires 'build-context-server-id' to also be specified when attaching test results to a build context");
-                return false;
-            }
-            if (hasAnyBuildContextParameter && hasBuildContextServerId && !hasWorkspace) {
-                System.out.println("'build-context-server-id' requires 'workspace' to also be specified when attaching test results to a build context");
-                return false;
+            // workspace is mandatory, unless you omit build-context-server-id as well.
+            if (!hasWorkspace) {
+                if (hasBuildContextServerId) {
+                    System.out.println("no workspace provided but build context server id specified");
+                    return false;
+                }
+
+                if (!hasBuildContextJobId && !hasBuildContextBuildId) {
+                    System.out.println("no workspace provided and no build context parameters specified");
+                    return false;
+                }
             }
 
             if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
@@ -600,10 +591,6 @@ public class CliParser {
             }
         }
         return true;
-    }
-
-    private boolean hasWorkspace(Settings settings) {
-        return settings.getWorkspace() != null;
     }
 
     private boolean isAuthenticationConfigured(Settings settings) {

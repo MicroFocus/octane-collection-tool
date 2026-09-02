@@ -31,15 +31,16 @@ Usage
      --build-context-build-id <arg>    Build id for defining build context.
      --build-context-job-id <arg>      Job id for defining build context.
      --build-context-server-id <arg>   Server instance id for defining
-                                       build context. This is an optional parameter
-                                       that the tool can be run without, since the ci
-                                       server can be deduced from the combination of
-                                       --build-context-job-id +
-                                       --build-context-build-id. If provided,
-                                       workspace parameter is also required.
-                                       For regular test-result push without
-                                       build-context parameters, workspace should
-                                       still be provided on its own (see Example 1).
+                                       build context. When build
+                                       context is used, this option and
+                                       --workspace must be supplied together:
+                                       provide both to target one specific
+                                       pipeline in one workspace (Example 9),
+                                       or omit both to target every matching
+                                       workspace (Example 8). Providing only
+                                       one of the two parameters (either only
+                                       --workspace or --build-context-server-id)
+                                       is a validation error.
    -c,--config-file <FILE>              configuration file location
       --check-result                    check test result status after push
       --check-result-timeout <SEC>      timeout for test result push status
@@ -91,7 +92,9 @@ Usage
   -t,--tag <TYPE:VALUE>                assign environment tag to test runs
   -u,--user <USERNAME>                 server username
   -v,--version                         show version of this tool
-  -w,--workspace <ID>                  server workspace to push to
+  -w,--workspace <ID>                  server workspace to push to. Mandatory parameter,
+                                       unless --build-context-server-id parameter is also
+                                       omitted.
 
 Configuration
 -------------
@@ -201,8 +204,8 @@ When pushing code coverage reports, the following build context parameters are r
 In addition, provide one of the following:
 * --build-context-server-id <ID> Server instance identifier, in order to inject code coverage into the desired pipeline (for example if you have the same pipeline
 configured in multiple workspaces, and you only want to push code coverage reports for one of them. If you want to push code coverage reports for all workspaces,
-you can omit this parameter). Note: in build-context scenarios, if this parameter is provided, it MUST be used in combination with workspace id. Failure to do so
-will provide a validation error. In the same way, if you want to push code coverage reports for all workspaces, you MUST omit both --build-context-server-id and
+you can omit this parameter). Note: in build-context scenarios, if this parameter is provided, it MUST be used in combination with workspace id. This will lead to injecting code coverage
+in only one workspace. In the same way, if you want to push code coverage reports for all workspaces in which you configured your pipeline, you MUST omit both --build-context-server-id and
 --workspace parameters. See the Examples section below for some running examples.
 
 Example configuration file with coverage support:
@@ -240,8 +243,7 @@ so that the pipeline is resolved unambiguously for a specific CI server instance
 and workspace. For test injection associated to a build context, these two
 parameters must be used together: if --build-context-server-id is provided,
 --workspace is required as well, and if you want to target all matching
-workspaces you must omit both of them (see Example 8). For regular test-result
-push without pipeline build-context parameters, --workspace must be provided.(see Example 1).
+workspaces you must omit both of them (see Example 8).
 
 Supported test result formats
 -----------------------------
