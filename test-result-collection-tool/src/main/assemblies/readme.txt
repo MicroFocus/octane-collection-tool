@@ -38,7 +38,7 @@ Usage
                                        --build-context-build-id. If provided,
                                        workspace parameter is also required.
                                        For regular test-result push without
-                                       build-context parameters, workspace can
+                                       build-context parameters, workspace should
                                        still be provided on its own (see Example 1).
    -c,--config-file <FILE>              configuration file location
       --check-result                    check test result status after push
@@ -241,8 +241,7 @@ and workspace. For test injection associated to a build context, these two
 parameters must be used together: if --build-context-server-id is provided,
 --workspace is required as well, and if you want to target all matching
 workspaces you must omit both of them (see Example 8). For regular test-result
-push without build-context parameters, --workspace can still be provided on its
-own (see Example 1).
+push without pipeline build-context parameters, --workspace must be provided.(see Example 1).
 
 Supported test result formats
 -----------------------------
