@@ -103,6 +103,7 @@ public class RestClient {
     private static final String URI_TEST_RESULT_PUSH = "test-results?skip-errors={0}";
     private static final String URI_SHARED_SPACE_TEST_RESULT_PUSH = "analytics/ci/test-results?skip-errors={0}";
     private static final String URI_TEST_RESULT_STATUS = "test-results/{0}";
+    private static final String URI_SHARED_SPACE_TEST_RESULT_STATUS = "analytics/ci/test-results/{0}";
 
     /**
      * Coverage push endpoint - shared-space level (no workspace segment).
@@ -299,11 +300,24 @@ public class RestClient {
         return createWorkspaceApiUri(URI_TEST_RESULT_PUSH, settings.isSkipErrors());
     }
 
-    public TestResultPushStatus getTestResultStatus(long id) {
+    /**
+     * Builds the URI used to retrieve the status of a previously pushed test result.
+     *
+     * <p></p>When no workspace is configured, the shared-space scoped endpoint is used
+     * ({@code internal-api/shared_spaces/{ss}/analytics/ci/test-results/{id}}), mirroring the
+     * shared-space scoped test results push endpoint. Otherwise, the workspace scoped endpoint is used
+     * ({@code api/shared_spaces/{ss}/workspaces/{ws}/test-results/{id}}).</p>
+     */
+    protected URI createTestResultStatusUri(long id) {
         if (settings.getWorkspace() == null) {
-            throw new IllegalStateException("Test result status retrieval requires a workspace ID.");
+            return URI.create(createBaseUri(SHARED_SPACE_INTERNAL_API_URI, settings.getSharedspace()) + "/" +
+                    resolveTemplate(URI_SHARED_SPACE_TEST_RESULT_STATUS, asMap(id)));
         }
-        HttpGet request = new HttpGet(createWorkspaceApiUri(URI_TEST_RESULT_STATUS, id));
+        return createWorkspaceApiUri(URI_TEST_RESULT_STATUS, id);
+    }
+
+    public TestResultPushStatus getTestResultStatus(long id) {
+        HttpGet request = new HttpGet(createTestResultStatusUri(id));
         CloseableHttpResponse response = null;
         try {
             response = execute(request);

@@ -540,10 +540,6 @@ public class CliParser {
                 return false;
             }
 
-            if (settings.isCheckResult() && !isSettingPresent(settings.getWorkspace(), "workspace")) {
-                return false;
-            }
-
             if (!isAuthenticationConfigured(settings)) {
                 System.out.println("Authentication not configured. Provide one of: (1) user + password, (2) user + password + access-token, or (3) bearer-token");
                 return false;
@@ -570,14 +566,21 @@ public class CliParser {
             }
 
             boolean hasWorkspace = settings.getWorkspace() != null;
-            boolean hasBuildContextServerId = settings.getBuildContextServerId() != null;
-            if (hasWorkspace && !hasBuildContextServerId) {
-                System.out.println("'workspace' requires 'build-context-server-id' to also be specified");
-                return false;
-            }
-            if (hasBuildContextServerId && !hasWorkspace) {
-                System.out.println("'build-context-server-id' requires 'workspace' to also be specified");
-                return false;
+            boolean hasBuildContextServerId = StringUtils.isNotBlank(settings.getBuildContextServerId());
+            boolean hasBuildContextJobId = StringUtils.isNotBlank(settings.getBuildContextJobId());
+            boolean hasBuildContextBuildId = StringUtils.isNotBlank(settings.getBuildContextBuildId());
+
+            // workspace is mandatory, unless you omit build-context-server-id as well.
+            if (!hasWorkspace) {
+                if (hasBuildContextServerId) {
+                    System.out.println("no workspace provided but build context server id specified");
+                    return false;
+                }
+
+                if (!hasBuildContextJobId && !hasBuildContextBuildId) {
+                    System.out.println("no workspace provided and no build context parameters specified");
+                    return false;
+                }
             }
 
             if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
