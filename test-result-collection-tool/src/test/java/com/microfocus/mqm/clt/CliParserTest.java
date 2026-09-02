@@ -292,18 +292,17 @@ public class CliParserTest {
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertFalse(result); // no auth configured
 
-        // bearer token alone is sufficient, workspace is optional
         settings.setBearerToken("mytoken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
-        Assert.assertTrue(result);
-
-        settings.setCheckResult(true);
-        result = (Boolean) settingsValidation.invoke(cliParser, settings);
-        Assert.assertTrue(result);
+        Assert.assertFalse(result); // no workspace and no build context params
 
         settings.setWorkspace(1002);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
         Assert.assertTrue(result); // workspace without build-context params is valid
+
+        settings.setCheckResult(true);
+        result = (Boolean) settingsValidation.invoke(cliParser, settings);
+        Assert.assertTrue(result);
 
         settings.setSuite(42);
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
@@ -312,7 +311,7 @@ public class CliParserTest {
         settings.setBuildContextJobId("job1");
         settings.setBuildContextBuildId("build1");
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
-        Assert.assertFalse(result); // workspace + build-context requires build-context-server-id
+        Assert.assertTrue(result); // workspace + build-context is valid
 
         settings.setBuildContextServerId("server1");
         result = (Boolean) settingsValidation.invoke(cliParser, settings);
