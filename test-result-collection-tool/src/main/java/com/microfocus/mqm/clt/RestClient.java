@@ -303,7 +303,7 @@ public class RestClient {
     /**
      * Builds the URI used to retrieve the status of a previously pushed test result.
      *
-     * <p></p>When no workspace is configured, the shared-space scoped endpoint is used
+     * <p>When no workspace is configured, the shared-space scoped endpoint is used
      * ({@code internal-api/shared_spaces/{ss}/analytics/ci/test-results/{id}}), mirroring the
      * shared-space scoped test results push endpoint. Otherwise, the workspace scoped endpoint is used
      * ({@code api/shared_spaces/{ss}/workspaces/{ws}/test-results/{id}}).</p>
