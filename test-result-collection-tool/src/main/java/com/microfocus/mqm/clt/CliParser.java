@@ -581,6 +581,10 @@ public class CliParser {
                     System.out.println("no workspace provided and no build context parameters specified");
                     return false;
                 }
+            } else if(!hasBuildContextServerId && (hasBuildContextJobId || hasBuildContextBuildId)) {
+                // If workspace is provided, and build context provided but no build server provided
+                System.out.println("workspace provided but no build context server id specified");
+                return false;
             }
 
             if (settings.getCoverageReportFileNames() != null && !settings.getCoverageReportFileNames().isEmpty()) {
