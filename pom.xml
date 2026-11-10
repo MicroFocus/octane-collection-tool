@@ -50,7 +50,7 @@
         <commons-cli.version>1.3.1</commons-cli.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <json.version>20231013</json.version>
+        <json.version>20260719</json.version>
         <junit.version>4.13.1</junit.version>
         <surefire.version>2.18.1</surefire.version>
         <failsafe.version>2.18.1</failsafe.version>
